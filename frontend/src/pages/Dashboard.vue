@@ -1,17 +1,14 @@
 <template>
   <div>
-    <h1>Login</h1>
-    <!-- Login form -->
+    <h1>Dashboard</h1>
   </div>
 </template>
 
 <script>
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
-  name: 'Login',
+  name: 'Dashboard',
 }
 </script>
 
-<style scoped>
-/* Styles for Login */
-</style>
+<style scoped></style>
