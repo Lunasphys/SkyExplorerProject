@@ -1,9 +1,9 @@
 <template>
   <div>
     <h1>Login</h1>
-    <form @submit.prevent="handleLogin">
-      <label for="email">Email:</label>
-      <input type="email" id="email" v-model="email" required />
+    <form @submit.prevent="performLogin">
+      <label for="mail">mail:</label>
+      <input type="email" id="mail" v-model="mail" required />
 
       <label for="password">Password:</label>
       <input type="password" id="password" v-model="password" required />
@@ -11,7 +11,6 @@
       <button type="submit">Login</button>
     </form>
     <p v-if="loginMessage">{{ loginMessage }}</p>
-    <!-- Afficher le message de connexion -->
   </div>
 </template>
 
@@ -23,7 +22,7 @@ export default {
   name: 'Login',
   data() {
     return {
-      email: '',
+      mail: '',
       password: '',
     }
   },
@@ -32,10 +31,13 @@ export default {
   },
   methods: {
     ...mapActions(['login']),
-    async handleLogin() {
+    async performLogin() {
+      console.log('Attempting login with:', {
+        mail: this.mail,
+        password: this.password,
+      })
       try {
-        await this.login({ email: this.email, password: this.password })
-        await this.$router.push('/dashboard')
+        await this.login({ mail: this.mail, password: this.password })
       } catch (error) {
         console.error('Login failed:', error.message)
       }
@@ -43,7 +45,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-/* Styles pour Login */
-</style>

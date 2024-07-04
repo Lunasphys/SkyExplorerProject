@@ -1,46 +1,37 @@
 import { createStore } from 'vuex'
+import axios from 'axios'
 
 export default createStore({
   state: {
-    user: null,
     loginMessage: '',
   },
-  mutations: {
-    setUser(state, user) {
-      state.user = user
+  getters: {
+    loginMessage: (state) => state.loginMessage,
+  },
+  actions: {
+    async login({ commit }, { mail, password }) {
+      console.log('Dispatching login action with:', { mail, password })
+      try {
+        const response = await axios.post('http://localhost:5000/api/login', {
+          mail,
+          password,
+        })
+        commit('setLoginMessage', response.data.message)
+      } catch (error) {
+        console.error(
+          'Login action failed:',
+          error.response?.data?.message || error.message,
+        )
+        commit(
+          'setLoginMessage',
+          error.response?.data?.message || 'Login failed',
+        )
+      }
     },
+  },
+  mutations: {
     setLoginMessage(state, message) {
       state.loginMessage = message
     },
-  },
-  actions: {
-    async login({ commit }, credentials) {
-      try {
-        const response = await fetch('http://localhost:5000/api/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(credentials),
-        })
-        const data = await response.json()
-        if (response.ok) {
-          commit('setUser', data.token)
-          commit('setLoginMessage', data.message)
-        } else {
-          throw new Error(data.message)
-        }
-      } catch (error) {
-        throw new Error('Login failed: ' + error.message)
-      }
-    },
-    logout({ commit }) {
-      commit('setUser', null)
-      commit('setLoginMessage', '')
-    },
-  },
-  getters: {
-    isAuthenticated: (state) => !!state.user,
-    loginMessage: (state) => state.loginMessage,
   },
 })

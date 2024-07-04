@@ -1,24 +1,39 @@
-const express = require('express')
-const mongoose = require('mongoose')
-const cors = require('cors')
-const authRoutes = require('./routes/authRoutes')
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const authRoutes = require('./routes/authRoutes');
 
-const app = express()
+const app = express();
 
-mongoose.connect('mongodb://localhost:27017/skyexplorer')
-  .then(() => {
-    console.log('Connected to MongoDB')
-  })
-  .catch((error) => {
-    console.error('Error connecting to MongoDB:', error)
-  })
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
 
-app.use(cors())
-app.use(express.json())
+// Événements de connexion Mongoose
+mongoose.connection.on('connected', () => {
+  console.log('Mongoose connected to the database');
+});
 
-app.use('/api/auth', authRoutes)
+mongoose.connection.on('error', (err) => {
+  console.error('Mongoose connection error:', err);
+});
 
-const PORT = process.env.PORT || 5000
+mongoose.connection.on('disconnected', () => {
+  console.log('Mongoose disconnected from the database');
+});
+
+// Connexion à la base de données
+mongoose.connect('mongodb://localhost:27017/skyexplorer', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Routes
+app.use('/api', authRoutes);
+
+// Démarrage du serveur
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
-})
+  console.log(`Server is running on port ${PORT}`);
+});
