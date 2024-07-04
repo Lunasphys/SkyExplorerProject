@@ -4,34 +4,94 @@ import axios from 'axios'
 export default createStore({
   state: {
     loginMessage: '',
+    user: null,
+    events: [],
+    isAuthenticated: false,
   },
   getters: {
     loginMessage: (state) => state.loginMessage,
+    user: (state) => state.user,
+    events: (state) => state.events,
+    isAuthenticated: (state) => !!state.user,
   },
   actions: {
     async login({ commit }, { mail, password }) {
-      console.log('Dispatching login action with:', { mail, password })
       try {
         const response = await axios.post('http://localhost:5000/api/login', {
           mail,
           password,
         })
+        commit('setUser', response.data.user)
         commit('setLoginMessage', response.data.message)
+        commit('setAuthenticated', true)
       } catch (error) {
-        console.error(
-          'Login action failed:',
-          error.response?.data?.message || error.message,
-        )
         commit(
           'setLoginMessage',
           error.response?.data?.message || 'Login failed',
         )
       }
     },
+    logout({ commit }) {
+      commit('setUser', null)
+      commit('setLoginMessage', '')
+      commit('setAuthenticated', false)
+    },
+    // async fetchEvents({ commit }) {
+    //   // const token = localStorage.getItem('authToken')
+    //   // if (!token) {
+    //   //   console.error('Authentication token not found')
+    //   //   return
+    //   // }
+    //
+    //   try {
+    //     const response = await axios.get('http://localhost:5000/api/events', {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     })
+    //     commit('setEvents', response.data)
+    //   } catch (error) {
+    //     console.error('Failed to fetch events:', error)
+    //   }
+    // },
+    async addEvent({ commit }, event) {
+      try {
+        const response = await axios.post(
+          'http://localhost:5000/api/events',
+          event,
+        )
+        commit('addEvent', response.data)
+      } catch (error) {
+        console.error('Failed to add event:', error)
+      }
+    },
+    async deleteEvent({ commit }, eventId) {
+      try {
+        await axios.delete(`http://localhost:5000/api/events/${eventId}`)
+        commit('removeEvent', eventId)
+      } catch (error) {
+        console.error('Failed to delete event:', error)
+      }
+    },
   },
   mutations: {
     setLoginMessage(state, message) {
       state.loginMessage = message
+    },
+    setUser(state, user) {
+      state.user = user
+    },
+    setEvents(state, events) {
+      state.events = events
+    },
+    addEvent(state, event) {
+      state.events.push(event)
+    },
+    removeEvent(state, eventId) {
+      state.events = state.events.filter((event) => event._id !== eventId)
+    },
+    setAuthenticated(state, isAuthenticated) {
+      state.isAuthenticated = isAuthenticated
     },
   },
 })

@@ -1,0 +1,177 @@
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+
+// Connexion à MongoDB
+mongoose.connect('mongodb://localhost:27017/skyexplorer', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Définition des schémas
+const userSchema = new mongoose.Schema({
+  first_name: { type: String, required: true },
+  last_name: { type: String, required: true },
+  age: { type: Number, required: true },
+  mail: { type: String, required: true, unique: true },
+  phone: { type: String, required: true },
+  address: { type: String, required: true },
+  complementary: { type: String },
+  postal_code: { type: String, required: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['admin', 'professor', 'student'], required: true },
+});
+
+const eventSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  type: { type: String, enum: ['course', 'leisure'], required: true },
+  student: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  professor: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  day: { type: String, required: true },
+  hour: { type: String, required: true },
+  duration: { type: Number, required: true },
+});
+
+const billSchema = new mongoose.Schema({
+  updated_from: { type: Date, required: true },
+  updated_to: { type: Date, required: true },
+  price: { type: Number, required: true },
+});
+
+const flightSchema = new mongoose.Schema({
+  type: { type: String, required: true },
+  date: { type: Date, required: true },
+  duration: { type: Number, required: true },
+});
+
+const paymentSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+});
+
+const planeSchema = new mongoose.Schema({
+  plane_id: { type: Number, required: true, unique: true },
+});
+
+const User = mongoose.model('User', userSchema);
+const Event = mongoose.model('Event', eventSchema);
+const Bill = mongoose.model('Bill', billSchema);
+const Flight = mongoose.model('Flight', flightSchema);
+const Payment = mongoose.model('Payment', paymentSchema);
+const Plane = mongoose.model('Plane', planeSchema);
+
+// Fonction pour hacher les mots de passe
+const hashPassword = async (password) => {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(password, salt);
+};
+
+const insertData = async () => {
+  try {
+    // Suppression des collections existantes
+    await User.deleteMany({});
+    await Event.deleteMany({});
+    await Bill.deleteMany({});
+    await Flight.deleteMany({});
+    await Payment.deleteMany({});
+    await Plane.deleteMany({});
+
+    // Insertion des utilisateurs
+    const johnDoe = new User({
+      first_name: 'John',
+      last_name: 'Doe',
+      age: 30,
+      mail: 'john.doe@example.com',
+      phone: '1234567890',
+      address: '123 Main St',
+      complementary: 'Apt 4',
+      postal_code: '12345',
+      password: await hashPassword('aaa'), // Hachage du mot de passe
+      role: 'student',
+    });
+
+    const janeSmith = new User({
+      first_name: 'Jane',
+      last_name: 'Smith',
+      age: 25,
+      mail: 'jane.smith@example.com',
+      phone: '0987654321',
+      address: '456 Elm St',
+      complementary: 'Suite 1',
+      postal_code: '54321',
+      password: await hashPassword('aaa'), // Hachage du mot de passe
+      role: 'professor',
+    });
+
+    const adminUser = new User({
+      first_name: 'Admin',
+      last_name: 'User',
+      age: 30,
+      mail: 'admin@example.com',
+      phone: '1234567890',
+      address: '123 Admin St',
+      complementary: 'Apt 1',
+      postal_code: '12345',
+      password: await hashPassword('aaa'), // Hachage du mot de passe
+      role: 'admin',
+    });
+
+    await johnDoe.save();
+    await janeSmith.save();
+    await adminUser.save();
+
+    // Insertion des événements
+    const mathCourse = new Event({
+      title: 'Math Course',
+      type: 'course',
+      student: johnDoe._id,
+      professor: janeSmith._id,
+      day: '2023-01-15',
+      hour: '10:00',
+      duration: 2,
+    });
+
+    const artClass = new Event({
+      title: 'Art Class',
+      type: 'leisure',
+      student: johnDoe._id,
+      professor: janeSmith._id,
+      day: '2023-02-20',
+      hour: '14:00',
+      duration: 1.5,
+    });
+
+    await mathCourse.save();
+    await artClass.save();
+
+    // Insertion des bills
+    await Bill.insertMany([
+      { updated_from: new Date('2023-01-01'), updated_to: new Date('2023-01-31'), price: 1000 },
+      { updated_from: new Date('2023-02-01'), updated_to: new Date('2023-02-28'), price: 1500 },
+    ]);
+
+    // Insertion des flights
+    await Flight.insertMany([
+      { type: 'training', date: new Date('2023-01-15'), duration: 60 },
+      { type: 'recreational', date: new Date('2023-02-20'), duration: 90 },
+    ]);
+
+    // Insertion des payments
+    await Payment.insertMany([
+      { title: 'Credit Card' },
+      { title: 'PayPal' },
+    ]);
+
+    // Insertion des planes
+    await Plane.insertMany([
+      { plane_id: 1 },
+      { plane_id: 2 },
+    ]);
+
+    console.log('Users, events, and other collections have been inserted successfully.');
+  } catch (error) {
+    console.error('Error inserting data:', error);
+  } finally {
+    mongoose.connection.close();
+  }
+};
+
+insertData();

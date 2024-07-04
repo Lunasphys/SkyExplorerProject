@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/authRoutes');
+const eventRoutes = require('./routes/eventRoutes');
 
 const app = express();
 
@@ -31,7 +32,7 @@ mongoose.connect('mongodb://localhost:27017/skyexplorer', {
 
 // Routes
 app.use('/api', authRoutes);
-
+app.use('/api/events', eventRoutes);
 // Démarrage du serveur
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
