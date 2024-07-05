@@ -5,6 +5,14 @@
       <h2>{{ formattedWeek }}</h2>
       <button @click="nextWeek">Next</button>
     </div>
+    <div>
+      <h1>Liste des étudiants</h1>
+      <ul>
+        <li v-for="student in students" :key="student._id">
+          {{ student.first_name }} {{ student.last_name }}
+        </li>
+      </ul>
+    </div>
     <div v-if="role === 'admin'" class="user-selection">
       <label for="user">Select User:</label>
       <select id="user" v-model="selectedUser" @change="fetchUserEvents">
@@ -47,14 +55,20 @@ import { ref, computed, onMounted } from 'vue'
 import { format, startOfWeek, addWeeks, subWeeks, addDays } from 'date-fns'
 import EventModal from '@/components/EventModal.vue'
 import axios from 'axios'
-import { useStore } from 'vuex'
+import { mapActions, mapGetters, useStore } from 'vuex'
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Calendar',
-  methods: { format },
+  computed: {
+    ...mapGetters(['students']),
+  },
+  methods: { format, ...mapActions(['fetchStudents']) },
   components: {
     EventModal,
+  },
+  created() {
+    this.fetchStudents()
   },
   setup() {
     const store = useStore()
@@ -112,7 +126,7 @@ export default {
 
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('authToken')
         if (!token) {
           throw new Error('No token found')
         }
@@ -140,7 +154,7 @@ export default {
 
     const addEvent = async (event) => {
       try {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('authToken')
         if (!token) {
           throw new Error('No token found')
         }
@@ -164,7 +178,7 @@ export default {
 
     const fetchUserEvents = async () => {
       try {
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('authToken')
         if (!token) {
           throw new Error('No token found')
         }

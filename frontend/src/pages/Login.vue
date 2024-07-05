@@ -34,7 +34,7 @@ export default {
           password: this.password,
         })
         const token = response.data.token
-        localStorage.setItem('token', token)
+        localStorage.setItem('authToken', token)
         await this.$router.push('./dashboard')
       } catch (error) {
         console.error('Login error:', error)

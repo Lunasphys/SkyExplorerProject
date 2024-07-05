@@ -18,46 +18,42 @@
         <div v-if="role === 'admin'">
           <label for="professor">Professor:</label>
           <select id="professor" v-model="selectedProfessorId" required>
-            <option
-              v-for="user in professors"
-              :key="user._id"
-              :value="user._id"
-            >
-              {{ user.first_name }} {{ user.last_name }}
+            <option v-for="professor in professors" :key="professor._id">
+              {{ professor.first_name }} {{ professor.last_name }}
             </option>
           </select>
           <label for="student">Student:</label>
           <select id="student" v-model="studentId" required>
-            <option v-for="user in students" :key="user._id" :value="user._id">
-              {{ user.first_name }} {{ user.last_name }}
+            <option v-for="student in students" :key="student._id">
+              {{ student.first_name }} {{ student.last_name }}
             </option>
           </select>
         </div>
         <div v-if="role === 'professor'">
           <label for="professor">Professor:</label>
           <select id="professor" v-model="selectedProfessorId" required>
-            <option
-              v-for="user in professors"
-              :key="user._id"
-              :value="user._id"
-            >
-              {{ user.first_name }} {{ user.last_name }}
+            <option v-for="professor in professors" :key="professor._id">
+              {{ professor.first_name }} {{ professor.last_name }}
             </option>
           </select>
           <label for="student">Student:</label>
           <select id="student" v-model="studentId" required>
-            <option v-for="user in students" :key="user._id" :value="user._id">
-              {{ user.first_name }} {{ user.last_name }}
+            <option v-for="student in students" :key="student._id">
+              {{ student.first_name }} {{ student.last_name }}
             </option>
           </select>
         </div>
         <div v-else-if="role !== 'admin' && role !== 'professor'">
-          <label for="professorName">Professor:</label>
-          <input type="text" id="professorName" v-model="professorName" />
+          <label for="professor">Professor:</label>
+          <select id="professor" v-model="selectedProfessorId" required>
+            <option v-for="professor in professors" :key="professor._id">
+              {{ professor.first_name }} {{ professor.last_name }}
+            </option>
+          </select>
           <label for="student">Student:</label>
           <select id="student" v-model="studentId" required>
-            <option v-for="user in students" :key="user._id" :value="user._id">
-              {{ user.first_name }} {{ user.last_name }}
+            <option v-for="student in students" :key="student._id">
+              {{ student.first_name }} {{ student.last_name }}
             </option>
           </select>
         </div>
@@ -79,6 +75,7 @@
 
 <script>
 import axios from 'axios'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'EventModal',
@@ -110,19 +107,15 @@ export default {
       type: 'course',
       studentId: '',
       duration: 1,
-      selectedProfessorId: this.professorId,
+      selectedProfessorId: '',
       professorName: '',
     }
   },
   computed: {
-    professors() {
-      return this.users.filter((user) => user.role === 'professor')
-    },
-    students() {
-      return this.users.filter((user) => user.role === 'student')
-    },
+    ...mapGetters(['professors', 'students']),
   },
   methods: {
+    ...mapActions(['fetchProfessors', 'fetchStudents']),
     async saveEvent() {
       try {
         const event = {
@@ -137,7 +130,7 @@ export default {
 
         console.log('Event data to be sent:', event)
 
-        const token = localStorage.getItem('token')
+        const token = localStorage.getItem('authToken')
         if (!token) {
           throw new Error('No authentication token found.')
         }
@@ -153,17 +146,9 @@ export default {
       }
     },
   },
-  mounted() {
-    if (this.role === 'professor') {
-      const professor = this.users.find((user) => user._id === this.professorId)
-      if (professor) {
-        this.selectedProfessorId = this.professorId
-        this.professorName = `${professor.first_name} ${professor.last_name}`
-      }
-    }
-    console.log('Users received:', this.users)
-    console.log('Professors:', this.professors)
-    console.log('Students:', this.students)
+  created() {
+    this.fetchProfessors()
+    this.fetchStudents()
   },
 }
 </script>

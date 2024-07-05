@@ -61,12 +61,18 @@ exports.getStudents = async (req, res) => {
 
 exports.getProfessors = async (req, res) => {
   try {
+    if (req.user.role === 'professor') {
+      const professor = await User.findById(req.user._id);
+      return res.status(200).json(professor);
+    }
+
     const professors = await User.find({ role: 'professor' });
     res.status(200).json(professors);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching professors', error });
   }
-}
+};
+
 
 exports.register = async (req, res) => {
   try {
@@ -83,7 +89,6 @@ exports.register = async (req, res) => {
     res.status(500).json({ message: 'Error registering user', error });
   }
 };
-
 
 exports.createAccount = async (req, res) => {
   const adminUser = await User.findById(req.user.id);

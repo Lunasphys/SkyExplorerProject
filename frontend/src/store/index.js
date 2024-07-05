@@ -7,6 +7,8 @@ export default createStore({
     user: null,
     events: [],
     isAuthenticated: false,
+    students: [],
+    professors: [],
   },
   getters: {
     loginMessage: (state) => state.loginMessage,
@@ -15,6 +17,8 @@ export default createStore({
     isAuthenticated: (state) => !!state.user,
     userRole: (state) => state.user?.role,
     currentUserId: (state) => state.user?._id,
+    students: (state) => state.students,
+    professors: (state) => state.professors,
   },
   actions: {
     async login({ commit }, { mail, password }) {
@@ -24,10 +28,13 @@ export default createStore({
           password,
         })
         const token = response.data.token
+        const role = response.data.user.role
         localStorage.setItem('authToken', token)
+        localStorage.setItem('userRole', role)
         commit('setUser', response.data.user)
         commit('setLoginMessage', response.data.message)
         commit('setAuthenticated', true)
+        commit('setUserRole', role)
       } catch (error) {
         commit(
           'setLoginMessage',
@@ -77,6 +84,46 @@ export default createStore({
         console.error('Failed to fetch events:', error)
       }
     },
+    async fetchStudents({ commit }) {
+      const token = localStorage.getItem('authToken')
+      if (!token) {
+        console.error('Authentication token not found')
+        return
+      }
+
+      try {
+        const response = await axios.get('http://localhost:5000/api/students', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        commit('setStudents', response.data)
+      } catch (error) {
+        console.error('Failed to fetch students:', error)
+      }
+    },
+    async fetchProfessors({ commit }) {
+      const token = localStorage.getItem('authToken')
+      if (!token) {
+        console.error('Authentication token not found')
+        return
+      }
+
+      try {
+        const response = await axios.get(
+          'http://localhost:5000/api/professors',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        commit('setProfessors', response.data)
+      } catch (error) {
+        console.error('Failed to fetch professors:', error)
+      }
+    },
+
     async addEvent({ commit }, event) {
       const token = localStorage.getItem('authToken')
       if (!token) {
@@ -136,6 +183,12 @@ export default createStore({
     },
     setAuthenticated(state, isAuthenticated) {
       state.isAuthenticated = isAuthenticated
+    },
+    setStudents(state, students) {
+      state.students = students
+    },
+    setProfessors(state, professors) {
+      state.professors = professors
     },
   },
 })

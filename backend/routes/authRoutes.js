@@ -10,5 +10,7 @@ router.post('/createAccount', authController.createAccount);
 router.get('/events', authMiddleware(), eventController.getEvents);
 router.post('/events', authMiddleware(['professor', 'admin']), eventController.createEvent);
 router.get('/users', authMiddleware(['admin']), authController.getUsers);
+router.get('/students', authMiddleware(['admin', 'professor']), authController.getStudents);
+router.get('/professors', authMiddleware(['admin', 'professor']), authController.getProfessors);
 
 module.exports = router;
