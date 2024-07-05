@@ -61,11 +61,6 @@ exports.getStudents = async (req, res) => {
 
 exports.getProfessors = async (req, res) => {
   try {
-    if (req.user.role === 'professor') {
-      const professor = await User.findById(req.user._id);
-      return res.status(200).json(professor);
-    }
-
     const professors = await User.find({ role: 'professor' });
     res.status(200).json(professors);
   } catch (error) {

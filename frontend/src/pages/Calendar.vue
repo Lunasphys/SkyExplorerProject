@@ -25,6 +25,23 @@
         >
           <span @click="openModal(day, hour)" class="event-title">
             {{ getEvent(day, hour).title || '' }}
+            {{
+              getEvent(day, hour).type === 'course'
+                ? '📚'
+                : getEvent(day, hour).type === 'leisure'
+                ? '🌴'
+                : ''
+            }}
+            {{
+              getEvent(day, hour).student
+                ? `(${getEvent(day, hour).student.first_name})`
+                : ''
+            }}
+            {{
+              getEvent(day, hour).professor
+                ? `(${getEvent(day, hour).professor.first_name})`
+                : ''
+            }}
           </span>
         </div>
       </div>
