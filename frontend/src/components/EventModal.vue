@@ -17,42 +17,66 @@
         </div>
         <div v-if="role === 'admin'">
           <label for="professor">Professor:</label>
-          <select id="professor" v-model="selectedProfessorId" required>
-            <option v-for="professor in professors" :key="professor._id">
+          <select id="professor" v-model="professorId" required>
+            <option
+              v-for="professor in professors"
+              :key="professor._id"
+              :value="professor._id"
+            >
               {{ professor.first_name }} {{ professor.last_name }}
             </option>
           </select>
           <label for="student">Student:</label>
           <select id="student" v-model="studentId" required>
-            <option v-for="student in students" :key="student._id">
+            <option
+              v-for="student in students"
+              :key="student._id"
+              :value="student._id"
+            >
               {{ student.first_name }} {{ student.last_name }}
             </option>
           </select>
         </div>
         <div v-if="role === 'professor'">
           <label for="professor">Professor:</label>
-          <select id="professor" v-model="selectedProfessorId" required>
-            <option v-for="professor in professors" :key="professor._id">
+          <select id="professor" v-model="professorId" required>
+            <option
+              v-for="professor in professors"
+              :key="professor._id"
+              :value="professor._id"
+            >
               {{ professor.first_name }} {{ professor.last_name }}
             </option>
           </select>
           <label for="student">Student:</label>
           <select id="student" v-model="studentId" required>
-            <option v-for="student in students" :key="student._id">
+            <option
+              v-for="student in students"
+              :key="student._id"
+              :value="student._id"
+            >
               {{ student.first_name }} {{ student.last_name }}
             </option>
           </select>
         </div>
         <div v-else-if="role !== 'admin' && role !== 'professor'">
           <label for="professor">Professor:</label>
-          <select id="professor" v-model="selectedProfessorId" required>
-            <option v-for="professor in professors" :key="professor._id">
+          <select id="professor" v-model="professorId" required>
+            <option
+              v-for="professor in professors"
+              :key="professor._id"
+              :value="professor._id"
+            >
               {{ professor.first_name }} {{ professor.last_name }}
             </option>
           </select>
           <label for="student">Student:</label>
           <select id="student" v-model="studentId" required>
-            <option v-for="student in students" :key="student._id">
+            <option
+              v-for="student in students"
+              :key="student._id"
+              :value="student._id"
+            >
               {{ student.first_name }} {{ student.last_name }}
             </option>
           </select>
@@ -96,10 +120,6 @@ export default {
       type: String,
       required: true,
     },
-    professorId: {
-      type: String,
-      default: '',
-    },
   },
   data() {
     return {
@@ -107,8 +127,8 @@ export default {
       type: 'course',
       studentId: '',
       duration: 1,
-      selectedProfessorId: '',
       professorName: '',
+      professorId: '',
     }
   },
   computed: {
@@ -117,32 +137,29 @@ export default {
   methods: {
     ...mapActions(['fetchProfessors', 'fetchStudents']),
     async saveEvent() {
+      const event = {
+        title: this.title,
+        type: this.type,
+        studentId: this.studentId,
+        professorId: this.professorId,
+        day: this.day,
+        hour: this.hour,
+        duration: this.duration,
+      }
+
       try {
-        const event = {
-          title: this.title,
-          type: this.type,
-          studentId: this.studentId,
-          professorId: this.selectedProfessorId,
-          day: this.day,
-          hour: this.hour,
-          duration: this.duration,
-        }
-
-        console.log('Event data to be sent:', event)
-
-        const token = localStorage.getItem('authToken')
-        if (!token) {
-          throw new Error('No authentication token found.')
-        }
-
-        await axios.post('http://localhost:5000/api/events', event, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await axios.post(
+          'http://localhost:5000/api/events',
+          event,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+            },
           },
-        })
-        this.$emit('event-saved')
+        )
+        console.log('Event saved successfully:', response.data)
       } catch (error) {
-        console.error('Error adding event:', error)
+        console.error('Error adding event:', error.response?.data || error)
       }
     },
   },
