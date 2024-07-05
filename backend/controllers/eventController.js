@@ -2,10 +2,8 @@ const Event = require('../models/Event');
 const User = require('../models/User');
 
 exports.createEvent = async (req, res) => {
-  const { title, type, studentId, day, hour, duration } = req.body;
-  const professorId = req.user.role === 'professor' ? req.user._id : req.body.professorId;
-
-  if (!title || !type || !studentId || !day || !hour || !duration || !professorId) {
+  const { title, type, studentId, professorId, day, hour, duration } = req.body;
+  if (!title || !type || !studentId || !professorId || !day || !hour || !duration) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
 
@@ -28,6 +26,7 @@ exports.createEvent = async (req, res) => {
   }
 };
 
+
 exports.getEvents = async (req, res) => {
   const { role, _id } = req.user;
 
@@ -47,4 +46,3 @@ exports.getEvents = async (req, res) => {
   }
 };
 
-// Similar methods for updateEvent and deleteEvent with appropriate role checks

@@ -1,3 +1,5 @@
+require('dotenv').config(); // Charger les variables d'environnement
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -25,7 +27,7 @@ mongoose.connection.on('disconnected', () => {
 });
 
 // Connexion à la base de données
-mongoose.connect('mongodb://localhost:27017/skyexplorer', {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -33,8 +35,10 @@ mongoose.connect('mongodb://localhost:27017/skyexplorer', {
 // Routes
 app.use('/api', authRoutes);
 app.use('/api/events', eventRoutes);
+
+
 // Démarrage du serveur
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

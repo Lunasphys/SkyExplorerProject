@@ -5,6 +5,14 @@
       <h2>{{ formattedWeek }}</h2>
       <button @click="nextWeek">Next</button>
     </div>
+    <div v-if="role === 'admin'" class="user-selection">
+      <label for="user">Select User:</label>
+      <select id="user" v-model="selectedUser" @change="fetchUserEvents">
+        <option v-for="user in users" :key="user._id" :value="user._id">
+          {{ user.first_name }} {{ user.last_name }}
+        </option>
+      </select>
+    </div>
     <div class="week">
       <div v-for="day in weekDays" :key="day" class="day-column">
         <h3>{{ format(day, 'EEEE') }}</h3>
@@ -15,15 +23,9 @@
           :class="getEventClass(day, hour)"
           :style="getEventStyle(day, hour)"
         >
-          <span @click="openModal(day, hour)" class="event-title">{{
-            getEvent(day, hour)
-          }}</span>
-          <span
-            v-if="getEvent(day, hour)"
-            @click="handleDelete(day, hour)"
-            class="delete-icon"
-            >🗑️</span
-          >
+          <span @click="openModal(day, hour)" class="event-title">
+            {{ getEvent(day, hour).title || '' }}
+          </span>
         </div>
       </div>
     </div>
@@ -31,6 +33,9 @@
       v-if="isModalOpen"
       :day="selectedDay"
       :hour="selectedHour"
+      :users="users"
+      :role="role"
+      :professor-id="currentUserId"
       @close="closeModal"
       @save="addEvent"
     />
@@ -38,10 +43,11 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { format, startOfWeek, addWeeks, subWeeks, addDays } from 'date-fns'
 import EventModal from '@/components/EventModal.vue'
-import store from '@/store'
+import axios from 'axios'
+import { useStore } from 'vuex'
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -51,11 +57,20 @@ export default {
     EventModal,
   },
   setup() {
-    const today = new Date()
-    const currentWeekStart = ref(startOfWeek(today, { weekStartsOn: 1 }))
+    const store = useStore()
+    const currentWeekStart = ref(startOfWeek(new Date(), { weekStartsOn: 1 }))
     const isModalOpen = ref(false)
     const selectedDay = ref('')
     const selectedHour = ref('')
+    const role = ref(store.getters.userRole || '')
+    const currentUserId = ref(store.getters.currentUserId || '')
+    const selectedUser = ref('')
+    const users = ref([])
+    const events = ref([])
+    const canCreateEvent = computed(
+      () => role.value === 'admin' || role.value === 'professor',
+    )
+
     const weekDays = computed(() => {
       return Array.from({ length: 7 }, (_, i) =>
         addDays(currentWeekStart.value, i),
@@ -63,23 +78,58 @@ export default {
     })
 
     const hours = ref(Array.from({ length: 24 }, (_, i) => `${i}:00`))
-    const events = computed(() => store.getters.events)
-    const user = computed(() => store.getters.user)
-    // const fetchEvents = () => store.dispatch('fetchEvents')
-    const addEvent = (event) => store.dispatch('addEvent', event)
-    const deleteEvent = (eventId) => store.dispatch('deleteEvent', eventId)
 
     const formattedWeek = computed(() => {
-      const endOfWeek = addDays(currentWeekStart.value, 6)
-      return `${format(currentWeekStart.value, 'MMMM do')} - ${format(
-        endOfWeek,
-        'MMMM do, yyyy',
-      )}`
+      const start = format(currentWeekStart.value, 'MMMM d')
+      const end = format(addDays(currentWeekStart.value, 6), 'MMMM d')
+      return `${start} - ${end}`
     })
 
+    const getEvent = (day, hour) => {
+      const formattedDay = format(day, 'yyyy-MM-dd')
+      return (
+        events.value.find(
+          (event) => event.day === formattedDay && event.hour === hour,
+        ) || {}
+      )
+    }
+
+    const getEventClass = (day, hour) => {
+      const event = getEvent(day, hour)
+      return event.type ? `event-${event.type}` : ''
+    }
+
+    const getEventStyle = (day, hour) => {
+      const event = getEvent(day, hour)
+      if (event.type) {
+        return {
+          backgroundColor: event.type === 'course' ? 'lightblue' : 'lightgreen',
+          height: `${event.duration * 20}px`,
+        }
+      }
+      return {}
+    }
+
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          throw new Error('No token found')
+        }
+        const response = await axios.get('http://localhost:5000/api/users', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        users.value = response.data
+        console.log('Users fetched:', users.value)
+      } catch (error) {
+        console.error('Error fetching users:', error)
+      }
+    }
+
     const openModal = (day, hour) => {
-      console.log('Opening modal for', day, hour) // Pour débogage
-      selectedDay.value = day
+      selectedDay.value = format(day, 'yyyy-MM-dd')
       selectedHour.value = hour
       isModalOpen.value = true
     }
@@ -88,76 +138,88 @@ export default {
       isModalOpen.value = false
     }
 
-    const addEventToCalendar = (event) => {
-      addEvent(event)
-      closeModal()
-    }
-
-    const getEvent = (day, hour) => {
-      const event = events.value.find(
-        (e) => e.day === format(day, 'yyyy-MM-dd') && e.hour === hour,
-      )
-      return event ? event.title : ''
-    }
-
-    const getEventClass = (day, hour) => {
-      const event = events.value.find(
-        (e) => e.day === format(day, 'yyyy-MM-dd') && e.hour === hour,
-      )
-      return event ? (event.type === 'course' ? 'course' : 'leisure') : ''
-    }
-
-    const getEventStyle = (day, hour) => {
-      const event = events.value.find(
-        (e) => e.day === format(day, 'yyyy-MM-dd') && e.hour === hour,
-      )
-      if (event) {
-        return {
-          gridRowEnd: `span ${event.duration * 2}`,
+    const addEvent = async (event) => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          throw new Error('No token found')
         }
+        console.log('Event to add:', event)
+        const response = await axios.post(
+          'http://localhost:5000/api/events',
+          event,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        console.log('Event added successfully:', response.data)
+        await fetchUserEvents()
+        closeModal()
+      } catch (error) {
+        console.error('Error adding event:', error)
       }
-      return {}
     }
 
-    const handleDelete = (day, hour) => {
-      const event = events.value.find(
-        (e) => e.day === format(day, 'yyyy-MM-dd') && e.hour === hour,
-      )
-      if (event) {
-        deleteEvent(event._id)
+    const fetchUserEvents = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          throw new Error('No token found')
+        }
+        const userId = selectedUser.value || currentUserId.value
+        const response = await axios.get(
+          `http://localhost:5000/api/events?user=${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        events.value = response.data
+      } catch (error) {
+        console.error('Error fetching events:', error)
       }
-    }
-
-    const prevWeek = () => {
-      currentWeekStart.value = subWeeks(currentWeekStart.value, 1)
-      // fetchEvents()
     }
 
     const nextWeek = () => {
       currentWeekStart.value = addWeeks(currentWeekStart.value, 1)
-      // fetchEvents()
+      fetchUserEvents()
     }
 
-    // fetchEvents()
+    const prevWeek = () => {
+      currentWeekStart.value = subWeeks(currentWeekStart.value, 1)
+      fetchUserEvents()
+    }
+
+    onMounted(() => {
+      fetchUsers()
+      fetchUserEvents()
+    })
 
     return {
       weekDays,
       hours,
-      events,
-      user,
-      isModalOpen,
-      selectedDay,
-      selectedHour,
       formattedWeek,
-      openModal,
-      closeModal,
-      addEvent: addEventToCalendar,
       getEvent,
       getEventClass,
       getEventStyle,
-      handleDelete,
-      prevWeek,
+      openModal,
+      closeModal,
+      addEvent,
+      isModalOpen,
+      selectedDay,
+      selectedHour,
+      role,
+      currentUserId,
+      selectedUser,
+      users,
+      events,
+      canCreateEvent,
+      fetchUserEvents,
       nextWeek,
+      prevWeek,
     }
   },
 }
@@ -200,6 +262,11 @@ export default {
 
 .event-title {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 10px;
 }
 
 .delete-icon {

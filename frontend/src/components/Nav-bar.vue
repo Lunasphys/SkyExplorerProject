@@ -22,8 +22,8 @@ export default {
   },
   methods: {
     ...mapActions(['logout']),
-    handleLogout() {
-      this.logout()
+    handleLogout({ commit }) {
+      this.logout({ commit })
       this.$router.push('/login')
     },
   },

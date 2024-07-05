@@ -1,47 +1,77 @@
 <template>
-  <div>
-    <h1>Login</h1>
-    <form @submit.prevent="performLogin">
-      <label for="mail">mail:</label>
-      <input type="email" id="mail" v-model="mail" required />
-
-      <label for="password">Password:</label>
-      <input type="password" id="password" v-model="password" required />
-
+  <div class="login">
+    <form @submit.prevent="login">
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" v-model="email" required />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" v-model="password" required />
+      </div>
       <button type="submit">Login</button>
     </form>
-    <p v-if="loginMessage">{{ loginMessage }}</p>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import axios from 'axios'
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Login',
   data() {
     return {
-      mail: '',
+      email: '',
       password: '',
     }
   },
-  computed: {
-    ...mapGetters(['loginMessage']),
-  },
   methods: {
-    ...mapActions(['login']),
-    async performLogin() {
-      console.log('Attempting login with:', {
-        mail: this.mail,
-        password: this.password,
-      })
+    async login() {
       try {
-        await this.login({ mail: this.mail, password: this.password })
+        const response = await axios.post('http://localhost:5000/api/login', {
+          mail: this.email,
+          password: this.password,
+        })
+        const token = response.data.token
+        localStorage.setItem('token', token)
+        await this.$router.push('./dashboard')
       } catch (error) {
-        console.error('Login failed:', error.message)
+        console.error('Login error:', error)
+        alert('Failed to login. Please check your credentials.')
       }
     },
   },
 }
 </script>
+
+<style scoped>
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+label {
+  font-weight: bold;
+}
+
+input {
+  padding: 10px;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+</style>
