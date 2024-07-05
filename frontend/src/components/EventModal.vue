@@ -1,7 +1,7 @@
 <template>
   <div class="modal">
     <div class="modal-content">
-      <span class="close" @click="$emit('close')">&times;</span>
+      <span class="close" @click="closeModal">&times;</span>
       <h2>Event Details</h2>
       <form @submit.prevent="saveEvent">
         <div>
@@ -17,7 +17,7 @@
         </div>
         <div v-if="role === 'admin'">
           <label for="professor">Professor:</label>
-          <select id="professor" v-model="professorId" required>
+          <select id="professor" v-model="localProfessorId" required>
             <option
               v-for="professor in professors"
               :key="professor._id"
@@ -39,7 +39,7 @@
         </div>
         <div v-if="role === 'professor'">
           <label for="professor">Professor:</label>
-          <select id="professor" v-model="professorId" required>
+          <select id="professor" v-model="localProfessorId" required>
             <option
               v-for="professor in professors"
               :key="professor._id"
@@ -61,7 +61,7 @@
         </div>
         <div v-else-if="role !== 'admin' && role !== 'professor'">
           <label for="professor">Professor:</label>
-          <select id="professor" v-model="professorId" required>
+          <select id="professor" v-model="localProfessorId" required>
             <option
               v-for="professor in professors"
               :key="professor._id"
@@ -120,6 +120,10 @@ export default {
       type: String,
       required: true,
     },
+    professorId: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
@@ -127,21 +131,20 @@ export default {
       type: 'course',
       studentId: '',
       duration: 1,
-      professorName: '',
-      professorId: '',
+      localProfessorId: this.professorId,
     }
   },
   computed: {
     ...mapGetters(['professors', 'students']),
   },
   methods: {
-    ...mapActions(['fetchProfessors', 'fetchStudents']),
+    ...mapActions(['fetchProfessors', 'fetchStudents', 'addEvent']),
     async saveEvent() {
       const event = {
         title: this.title,
         type: this.type,
         studentId: this.studentId,
-        professorId: this.professorId,
+        professorId: this.localProfessorId,
         day: this.day,
         hour: this.hour,
         duration: this.duration,
@@ -157,10 +160,15 @@ export default {
             },
           },
         )
-        console.log('Event saved successfully:', response.data)
+        this.addEvent(response.data) // Ajouter l'événement à l'état Vuex
+        this.$emit('save', response.data) // Emettre un événement de sauvegarde
+        this.closeModal() // Fermer le modal
       } catch (error) {
         console.error('Error adding event:', error.response?.data || error)
       }
+    },
+    closeModal() {
+      this.$emit('close')
     },
   },
   created() {

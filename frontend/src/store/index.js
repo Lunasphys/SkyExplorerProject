@@ -74,7 +74,7 @@ export default createStore({
       }
 
       try {
-        const response = await axios.get('http://localhost:5000/api/users', {
+        const response = await axios.get('http://localhost:5000/api/events', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -83,6 +83,9 @@ export default createStore({
       } catch (error) {
         console.error('Failed to fetch events:', error)
       }
+    },
+    addEvent({ commit }, event) {
+      commit('addEvent', event)
     },
     async fetchStudents({ commit }) {
       const token = localStorage.getItem('authToken')
@@ -121,29 +124,6 @@ export default createStore({
         commit('setProfessors', response.data)
       } catch (error) {
         console.error('Failed to fetch professors:', error)
-      }
-    },
-
-    async addEvent({ commit }, event) {
-      const token = localStorage.getItem('authToken')
-      if (!token) {
-        console.error('Authentication token not found')
-        return
-      }
-
-      try {
-        const response = await axios.post(
-          'http://localhost:5000/api/events',
-          event,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        )
-        commit('addEvent', response.data)
-      } catch (error) {
-        console.error('Failed to add event:', error)
       }
     },
     async deleteEvent({ commit }, eventId) {

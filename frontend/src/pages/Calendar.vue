@@ -5,14 +5,6 @@
       <h2>{{ formattedWeek }}</h2>
       <button @click="nextWeek">Next</button>
     </div>
-    <div>
-      <h1>Liste des étudiants</h1>
-      <ul>
-        <li v-for="student in students" :key="student._id">
-          {{ student.first_name }} {{ student.last_name }}
-        </li>
-      </ul>
-    </div>
     <div v-if="role === 'admin'" class="user-selection">
       <label for="user">Select User:</label>
       <select id="user" v-model="selectedUser" @change="fetchUserEvents">
@@ -45,7 +37,7 @@
       :role="role"
       :professor-id="currentUserId"
       @close="closeModal"
-      @save="addEvent"
+      @save="handleSaveEvent"
     />
   </div>
 </template>
@@ -61,14 +53,18 @@ export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Calendar',
   computed: {
-    ...mapGetters(['students']),
+    ...mapGetters(['students', 'events']),
   },
-  methods: { format, ...mapActions(['fetchStudents']) },
+  methods: {
+    format,
+    ...mapActions(['fetchStudents', 'fetchEvents', 'addEvent']),
+  },
   components: {
     EventModal,
   },
   created() {
     this.fetchStudents()
+    this.fetchEvents()
   },
   setup() {
     const store = useStore()
@@ -80,7 +76,7 @@ export default {
     const currentUserId = ref(store.getters.currentUserId || '')
     const selectedUser = ref('')
     const users = ref([])
-    const events = ref([])
+    const events = ref(store.getters.events || [])
     const canCreateEvent = computed(
       () => role.value === 'admin' || role.value === 'professor',
     )
@@ -118,7 +114,7 @@ export default {
       if (event.type) {
         return {
           backgroundColor: event.type === 'course' ? 'lightblue' : 'lightgreen',
-          height: `${event.duration * 20}px`,
+          height: `${event.duration * 40}px`,
         }
       }
       return {}
@@ -152,28 +148,8 @@ export default {
       isModalOpen.value = false
     }
 
-    const addEvent = async (event) => {
-      try {
-        const token = localStorage.getItem('authToken')
-        if (!token) {
-          throw new Error('No token found')
-        }
-        console.log('Event to add:', event)
-        const response = await axios.post(
-          'http://localhost:5000/api/events',
-          event,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        )
-        console.log('Event added successfully:', response.data)
-        await fetchUserEvents()
-        closeModal()
-      } catch (error) {
-        console.error('Error adding event:', error)
-      }
+    const handleSaveEvent = (event) => {
+      events.value.push(event)
     }
 
     const fetchUserEvents = async () => {
@@ -221,7 +197,7 @@ export default {
       getEventStyle,
       openModal,
       closeModal,
-      addEvent,
+      handleSaveEvent,
       isModalOpen,
       selectedDay,
       selectedHour,
@@ -289,12 +265,12 @@ export default {
 }
 
 .course {
-  background-color: blue;
+  background-color: lightblue;
   color: white;
 }
 
 .leisure {
-  background-color: green;
+  background-color: lightgreen;
   color: white;
 }
 </style>
