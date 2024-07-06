@@ -29,6 +29,7 @@ const eventSchema = new mongoose.Schema({
   day: { type: String, required: true },
   hour: { type: String, required: true },
   duration: { type: Number, required: true },
+  plane : { type: mongoose.Schema.Types.ObjectId, ref: 'Plane', required: true },
 });
 
 const billSchema = new mongoose.Schema({
@@ -48,7 +49,9 @@ const paymentSchema = new mongoose.Schema({
 });
 
 const planeSchema = new mongoose.Schema({
-  plane_id: { type: Number, required: true, unique: true },
+  name: { type: String, required: true },
+  model: { type: String, required: true },
+  available: { type: Boolean, required: true },
 });
 
 const User = mongoose.model('User', userSchema);
@@ -73,6 +76,44 @@ const insertData = async () => {
     await Flight.deleteMany({});
     await Payment.deleteMany({});
     await Plane.deleteMany({});
+
+    // Insertion des planes
+    const cesna172 = new Plane({
+      name: 'Cessna 172',
+      model: 'C172',
+      available: true,
+    });
+
+    const piperCherokee = new Plane({
+      name: 'Piper Cherokee',
+      model: 'PA-28',
+      available: true,
+    });
+
+    const cesna152 = new Plane({
+      name: 'Cessna 152',
+      model: 'C152',
+      available: true,
+    });
+
+    const piperArrow = new Plane({
+      name: 'Piper Arrow',
+      model: 'PA-28R',
+      available: true,
+    });
+
+    const cesna182 = new Plane({
+      name: 'Cessna 182',
+      model: 'C182',
+      available: true,
+    });
+
+    await cesna172.save();
+    await piperCherokee.save();
+    await cesna152.save();
+    await piperArrow.save();
+    await cesna182.save();
+
 
     // Insertion des utilisateurs
     const johnDoe = new User({
@@ -127,6 +168,7 @@ const insertData = async () => {
       day: '2023-01-15',
       hour: '10:00',
       duration: 2,
+      plane: cesna152._id,
     });
 
     const artClass = new Event({
@@ -137,6 +179,7 @@ const insertData = async () => {
       day: '2023-02-20',
       hour: '14:00',
       duration: 1.5,
+      plane: piperArrow._id,
     });
 
     await mathCourse.save();
@@ -160,11 +203,7 @@ const insertData = async () => {
       { title: 'PayPal' },
     ]);
 
-    // Insertion des planes
-    await Plane.insertMany([
-      { plane_id: 1 },
-      { plane_id: 2 },
-    ]);
+
 
     console.log('Users, events, and other collections have been inserted successfully.');
   } catch (error) {

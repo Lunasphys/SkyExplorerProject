@@ -9,6 +9,7 @@ const EventSchema = new Schema({
   day: { type: String, required: true },
   hour: { type: String, required: true },
   duration: { type: Number, required: true },
+  plane : { type: Schema.Types.ObjectId, ref: 'Plane', required: true },
 });
 
 module.exports = mongoose.model('Event', EventSchema);

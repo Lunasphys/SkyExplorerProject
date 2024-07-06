@@ -69,15 +69,20 @@ import { mapActions, mapGetters, useStore } from 'vuex'
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Calendar',
+  components: {
+    EventModal,
+  },
   computed: {
     ...mapGetters(['students', 'events']),
   },
   methods: {
     format,
-    ...mapActions(['fetchStudents', 'fetchEvents', 'addEvent']),
-  },
-  components: {
-    EventModal,
+    ...mapActions([
+      'fetchStudents',
+      'fetchEvents',
+      'addEvent',
+      'getAvailablePlanes',
+    ]),
   },
   created() {
     this.fetchStudents()

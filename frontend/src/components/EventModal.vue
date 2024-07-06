@@ -90,6 +90,17 @@
             min="1"
             required
           />
+          <label for="plane">Plane:</label>
+          <select id="plane" v-model="planeId" required>
+            <option
+              v-for="plane in planes"
+              :key="plane._id"
+              :value="plane._id"
+              :disabled="!plane.available"
+            >
+              {{ plane.name }}
+            </option>
+          </select>
         </div>
         <button type="submit">Save</button>
       </form>
@@ -132,6 +143,8 @@ export default {
       studentId: '',
       duration: 1,
       localProfessorId: this.professorId,
+      planeId: '',
+      planes: [],
     }
   },
   computed: {
@@ -148,8 +161,9 @@ export default {
         day: this.day,
         hour: this.hour,
         duration: this.duration,
+        planeId: this.planeId,
       }
-
+      console.log('Event payload:', event)
       try {
         const response = await axios.post(
           'http://localhost:5000/api/events',
@@ -160,11 +174,33 @@ export default {
             },
           },
         )
-        this.addEvent(response.data) // Ajouter l'événement à l'état Vuex
-        this.$emit('save', response.data) // Emettre un événement de sauvegarde
-        this.closeModal() // Fermer le modal
+        this.addEvent(response.data)
+        this.$emit('save', response.data)
+        this.closeModal()
       } catch (error) {
         console.error('Error adding event:', error.response?.data || error)
+      }
+    },
+    async checkPlaneAvailability() {
+      try {
+        const { day, hour, duration } = this
+        const token = localStorage.getItem('authToken')
+        if (!token) {
+          throw new Error('No token found')
+        }
+
+        const response = await axios.get(
+          'http://localhost:5000/api/events/availablePlanes',
+          {
+            params: { day, hour, duration },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        this.planes = response.data
+      } catch (error) {
+        console.error('Error checking plane availability:', error.message)
       }
     },
     closeModal() {
@@ -174,6 +210,18 @@ export default {
   created() {
     this.fetchProfessors()
     this.fetchStudents()
+    this.checkPlaneAvailability()
+  },
+  watch: {
+    day() {
+      this.checkPlaneAvailability()
+    },
+    hour() {
+      this.checkPlaneAvailability()
+    },
+    duration() {
+      this.checkPlaneAvailability()
+    },
   },
 }
 </script>

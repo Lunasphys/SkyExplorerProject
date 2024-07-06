@@ -9,6 +9,7 @@ export default createStore({
     isAuthenticated: false,
     students: [],
     professors: [],
+    planes: [],
   },
   getters: {
     loginMessage: (state) => state.loginMessage,
@@ -19,6 +20,7 @@ export default createStore({
     currentUserId: (state) => state.user?._id,
     students: (state) => state.students,
     professors: (state) => state.professors,
+    planes: (state) => state.planes,
   },
   actions: {
     async login({ commit }, { mail, password }) {
@@ -126,6 +128,30 @@ export default createStore({
         console.error('Failed to fetch professors:', error)
       }
     },
+    async getAvailablePlanes({ commit }, { day, hour, duration }) {
+      if (!day || !hour || !duration) {
+        console.error('day, hour, and duration are required')
+        return
+      }
+
+      const token = localStorage.getItem('authToken')
+      if (!token) {
+        console.error('Authentication token not found')
+        return
+      }
+
+      try {
+        const response = await axios.get('http://localhost:5000/api/events', {
+          params: { day, hour, duration },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        commit('setPlanes', response.data)
+      } catch (error) {
+        console.error('Failed to fetch available planes:', error)
+      }
+    },
     async deleteEvent({ commit }, eventId) {
       const token = localStorage.getItem('authToken')
       if (!token) {
@@ -169,6 +195,9 @@ export default createStore({
     },
     setProfessors(state, professors) {
       state.professors = professors
+    },
+    setPlanes(state, planes) {
+      state.planes = planes
     },
   },
 })
