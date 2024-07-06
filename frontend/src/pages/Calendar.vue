@@ -1,9 +1,9 @@
 <template>
   <div class="calendar">
     <div class="header">
-      <button @click="prevWeek">Previous</button>
+      <button @click="prevWeek" class="nav-button">Previous</button>
       <h2>{{ formattedWeek }}</h2>
-      <button @click="nextWeek">Next</button>
+      <button @click="nextWeek" class="nav-button">Next</button>
     </div>
     <h1>{{ userRole }}</h1>
     <div class="week">
@@ -138,29 +138,10 @@ export default {
       const event = getEvent(day, hour)
       if (event.type) {
         return {
-          backgroundColor: event.type === 'course' ? 'lightblue' : 'lightgreen',
           height: `${event.duration * 40}px`,
         }
       }
       return {}
-    }
-
-    const fetchUsers = async () => {
-      try {
-        const token = localStorage.getItem('authToken')
-        if (!token) {
-          throw new Error('No token found')
-        }
-        const response = await axios.get('http://localhost:5000/api/users', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        users.value = response.data
-        console.log('Users fetched:', users.value)
-      } catch (error) {
-        console.error('Error fetching users:', error)
-      }
     }
 
     const closeModal = () => {
@@ -179,6 +160,7 @@ export default {
           throw new Error('No token found')
         }
         const userId = selectedUser.value || currentUserId.value
+        console.log('Fetching events for user:', userId)
         const response = await axios.get(
           `http://localhost:5000/api/events?user=${userId}`,
           {
@@ -188,6 +170,7 @@ export default {
           },
         )
         events.value = response.data
+        console.log('Fetched events:', events.value)
       } catch (error) {
         console.error('Error fetching events:', error)
       }
@@ -209,7 +192,7 @@ export default {
       await store.dispatch('fetchEvents')
       currentUserId.value = store.getters.currentUserId
       role.value = store.getters.userRole
-      await fetchUsers()
+      await fetchUserEvents()
     })
 
     return {
@@ -242,6 +225,12 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: auto;
 }
 
 .header {
@@ -251,25 +240,57 @@ export default {
   margin-bottom: 20px;
 }
 
+.nav-button {
+  padding: 10px 20px;
+  border: none;
+  background: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.nav-button:hover {
+  background: #0056b3;
+}
+
 .week {
   display: flex;
   width: 100%;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .day-column {
   flex: 1;
-  border: 1px solid #ccc;
+  border-right: 1px solid #eaeaea;
   padding: 10px;
   display: grid;
   grid-template-rows: repeat(24, 40px);
 }
 
+.day-column:last-child {
+  border-right: none;
+}
+
+.day-column h3 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
 .hour-slot {
-  border-top: 1px solid #eee;
+  border-top: 1px solid #eaeaea;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   cursor: pointer;
+  transition: background 0.3s;
+}
+
+.hour-slot:hover {
+  background: #f1f1f1;
 }
 
 .event-title {
@@ -279,5 +300,21 @@ export default {
   justify-content: center;
   cursor: pointer;
   padding: 10px;
+  border-radius: 5px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.event-title:hover {
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.event-course {
+  background-color: #d9edf7;
+  color: #31708f;
+}
+
+.event-leisure {
+  background-color: #dff0d8;
+  color: #3c763d;
 }
 </style>
