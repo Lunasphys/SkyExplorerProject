@@ -5,12 +5,11 @@ import AdminSchedule from '../pages/AdminSchedule.vue'
 import Billing from '../pages/Billing.vue'
 import Statistics from '../pages/Statistics.vue'
 import StudentProgress from '../pages/StudentProgress.vue'
-import Calendar from '@/pages/Calendar.vue'
 
 const routes = [
   { path: '/', component: Login },
   { path: '/login', component: Login },
-  { path: '/dashboard', component: Dashboard, Calendar },
+  { path: '/dashboard', component: Dashboard },
   { path: '/admin/schedule', component: AdminSchedule },
   { path: '/billing', component: Billing },
   { path: '/statistics', component: Statistics },

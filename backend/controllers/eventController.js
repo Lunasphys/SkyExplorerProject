@@ -40,15 +40,16 @@ exports.getEvents = async (req, res) => {
   try {
     let events;
     if (role === 'admin') {
-      events = await Event.find().populate('student').populate('professor');
+      events = await Event.find().populate('student').populate('professor').populate('plane');
     } else if (role === 'professor') {
-      events = await Event.find({ professor: _id }).populate('student').populate('professor');
+      events = await Event.find({ professor: _id }).populate('student').populate('professor').populate('plane');
     } else if (role === 'student') {
-      events = await Event.find({ student: _id }).populate('student').populate('professor');
+      events = await Event.find({ student: _id }).populate('student').populate('professor').populate('plane');
     }
 
     res.status(200).json(events);
   } catch (error) {
+    console.error('Error fetching events:', error);
     res.status(500).json({ message: 'Error fetching events.', error });
   }
 };

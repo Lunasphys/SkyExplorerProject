@@ -44,7 +44,6 @@ exports.getUsers = async (req, res) => {
       const users = await User.find({ first_name: { $regex: name, $options: 'i' } });
       return res.status(200).json(users);
     }
-    console.log('Users fetched successfully');
   } catch (error) {
     res.status(500).json({ message: 'Error fetching users', error });
   }
@@ -103,5 +102,14 @@ exports.createAccount = async (req, res) => {
   } catch (error) {
     console.error('Error creating account:', error);
     res.status(500).json({ message: 'Error creating account', error });
+  }
+};
+
+exports.getUser = async (req, res) => {
+  try {
+    const user = req.user;
+    res.send(user);
+  } catch (error) {
+    res.status(500).send(error);
   }
 };

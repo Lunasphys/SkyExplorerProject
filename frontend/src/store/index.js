@@ -16,7 +16,7 @@ export default createStore({
     user: (state) => state.user,
     events: (state) => state.events,
     isAuthenticated: (state) => !!state.user,
-    userRole: (state) => state.user?.role,
+    userRole: (state) => (state.user ? state.user.role : ''),
     currentUserId: (state) => state.user?._id,
     students: (state) => state.students,
     professors: (state) => state.professors,
@@ -36,7 +36,6 @@ export default createStore({
         commit('setUser', response.data.user)
         commit('setLoginMessage', response.data.message)
         commit('setAuthenticated', true)
-        commit('setUserRole', role)
       } catch (error) {
         commit(
           'setLoginMessage',
@@ -50,22 +49,20 @@ export default createStore({
       commit('setLoginMessage', '')
       commit('setAuthenticated', false)
     },
-    async getUser({ commit }) {
-      const token = localStorage.getItem('authToken')
-      if (!token) {
-        console.error('Authentication token not found')
-        return
-      }
-
+    async fetchUser({ commit }) {
       try {
-        const response = await axios.get('http://localhost:5000/api/users', {
+        const token = localStorage.getItem('authToken')
+        if (!token) {
+          throw new Error('No token found')
+        }
+        const response = await axios.get('http://localhost:5000/api/user', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
         commit('setUser', response.data)
       } catch (error) {
-        console.error('Failed to fetch user:', error)
+        console.error('Error fetching user:', error)
       }
     },
     async fetchEvents({ commit }) {
@@ -81,9 +78,12 @@ export default createStore({
             Authorization: `Bearer ${token}`,
           },
         })
+        console.log('API Response:', response)
         commit('setEvents', response.data)
+        console.log('Events fetched successfully')
       } catch (error) {
         console.error('Failed to fetch events:', error)
+        commit('setEvents', [])
       }
     },
     addEvent({ commit }, event) {
@@ -141,12 +141,15 @@ export default createStore({
       }
 
       try {
-        const response = await axios.get('http://localhost:5000/api/events', {
-          params: { day, hour, duration },
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+          'http://localhost:5000/api/events/availablePlanes',
+          {
+            params: { day, hour, duration },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        })
+        )
         commit('setPlanes', response.data)
       } catch (error) {
         console.error('Failed to fetch available planes:', error)
@@ -172,14 +175,14 @@ export default createStore({
     },
   },
   mutations: {
+    setEvents(state, events) {
+      state.events = Array.isArray(events) ? events : []
+    },
     setLoginMessage(state, message) {
       state.loginMessage = message
     },
     setUser(state, user) {
       state.user = user
-    },
-    setEvents(state, events) {
-      state.events = events
     },
     addEvent(state, event) {
       state.events.push(event)

@@ -20,7 +20,8 @@
     "mongoose": "^8.4.3",
     "vue": "^3.2.13",
     "vue-router": "^4.0.13",
-    "vuex": "^4.0.0"
+    "vuex": "^4.0.0",
+    "webpack": "^5.92.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

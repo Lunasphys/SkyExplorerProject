@@ -5,14 +5,7 @@
       <h2>{{ formattedWeek }}</h2>
       <button @click="nextWeek">Next</button>
     </div>
-    <div v-if="role === 'admin'" class="user-selection">
-      <label for="user">Select User:</label>
-      <select id="user" v-model="selectedUser" @change="fetchUserEvents">
-        <option v-for="user in users" :key="user._id" :value="user._id">
-          {{ user.first_name }} {{ user.last_name }}
-        </option>
-      </select>
-    </div>
+    <h1>{{ userRole }}</h1>
     <div class="week">
       <div v-for="day in weekDays" :key="day" class="day-column">
         <h3>{{ format(day, 'EEEE') }}</h3>
@@ -42,6 +35,11 @@
                 ? `(${getEvent(day, hour).professor.first_name})`
                 : ''
             }}
+            {{
+              getEvent(day, hour).plane
+                ? `(${getEvent(day, hour).plane.name})`
+                : ''
+            }}
           </span>
         </div>
       </div>
@@ -51,7 +49,7 @@
       :day="selectedDay"
       :hour="selectedHour"
       :users="users"
-      :role="role"
+      :role="userRole"
       :professor-id="currentUserId"
       @close="closeModal"
       @save="handleSaveEvent"
@@ -73,7 +71,10 @@ export default {
     EventModal,
   },
   computed: {
-    ...mapGetters(['students', 'events']),
+    ...mapGetters(['students', 'events', 'userRole', 'currentUserId']),
+    canOpenModal() {
+      return this.userRole === 'admin' || this.userRole === 'professor'
+    },
   },
   methods: {
     format,
@@ -83,10 +84,15 @@ export default {
       'addEvent',
       'getAvailablePlanes',
     ]),
-  },
-  created() {
-    this.fetchStudents()
-    this.fetchEvents()
+    async openModal(day, hour) {
+      if (this.canOpenModal) {
+        this.selectedDay = format(day, 'yyyy-MM-dd')
+        this.selectedHour = hour
+        this.isModalOpen = true
+      } else {
+        alert('You cannot create events')
+      }
+    },
   },
   setup() {
     const store = useStore()
@@ -94,14 +100,11 @@ export default {
     const isModalOpen = ref(false)
     const selectedDay = ref('')
     const selectedHour = ref('')
-    const role = ref(store.getters.userRole || '')
-    const currentUserId = ref(store.getters.currentUserId || '')
     const selectedUser = ref('')
     const users = ref([])
-    const events = ref(store.getters.events || [])
-    const canCreateEvent = computed(
-      () => role.value === 'admin' || role.value === 'professor',
-    )
+    const events = ref(store.getters.events)
+    const currentUserId = ref(store.getters.currentUserId)
+    const role = ref(store.getters.userRole)
 
     const weekDays = computed(() => {
       return Array.from({ length: 7 }, (_, i) =>
@@ -160,13 +163,8 @@ export default {
       }
     }
 
-    const openModal = (day, hour) => {
-      selectedDay.value = format(day, 'yyyy-MM-dd')
-      selectedHour.value = hour
-      isModalOpen.value = true
-    }
-
     const closeModal = () => {
+      fetchUserEvents()
       isModalOpen.value = false
     }
 
@@ -205,9 +203,13 @@ export default {
       fetchUserEvents()
     }
 
-    onMounted(() => {
-      fetchUsers()
-      fetchUserEvents()
+    onMounted(async () => {
+      await store.dispatch('fetchUser')
+      await store.dispatch('fetchStudents')
+      await store.dispatch('fetchEvents')
+      currentUserId.value = store.getters.currentUserId
+      role.value = store.getters.userRole
+      await fetchUsers()
     })
 
     return {
@@ -217,7 +219,6 @@ export default {
       getEvent,
       getEventClass,
       getEventStyle,
-      openModal,
       closeModal,
       handleSaveEvent,
       isModalOpen,
@@ -228,7 +229,6 @@ export default {
       selectedUser,
       users,
       events,
-      canCreateEvent,
       fetchUserEvents,
       nextWeek,
       prevWeek,
@@ -279,20 +279,5 @@ export default {
   justify-content: center;
   cursor: pointer;
   padding: 10px;
-}
-
-.delete-icon {
-  color: red;
-  cursor: pointer;
-}
-
-.course {
-  background-color: lightblue;
-  color: white;
-}
-
-.leisure {
-  background-color: lightgreen;
-  color: white;
 }
 </style>

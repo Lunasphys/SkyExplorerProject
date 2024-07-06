@@ -3,20 +3,29 @@
     <div class="dashboard-container">
       <Calendar />
     </div>
-    <Footer />
   </div>
 </template>
 
 <script>
-import Footer from '@/components/Footer.vue'
 import Calendar from '@/pages/Calendar.vue'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Dashboard',
   components: {
-    Footer,
     Calendar,
+  },
+  data() {
+    return {
+      eventLoaded: false,
+    }
+  },
+  computed: {
+    ...mapGetters(['events']),
+  },
+  methods: {
+    ...mapActions(['fetchEvents']),
   },
 }
 </script>

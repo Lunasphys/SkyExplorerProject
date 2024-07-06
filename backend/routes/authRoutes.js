@@ -17,6 +17,7 @@ router.get('/events/availablePlanes', authMiddleware(['admin', 'professor']), ev
 
 // User routes
 router.get('/users', authMiddleware(['admin', 'professor']), authController.getUsers);
+router.get('/user', authMiddleware(), authController.getUser);
 router.get('/students', authMiddleware(['admin', 'professor']), authController.getStudents);
 router.get('/professors', authMiddleware(['admin', 'professor']), authController.getProfessors);
 
