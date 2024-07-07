@@ -68,6 +68,7 @@ export default {
   height: 100vh;
   position: relative;
   overflow: hidden;
+  text-align-last: center;
 }
 
 #bg-video {
