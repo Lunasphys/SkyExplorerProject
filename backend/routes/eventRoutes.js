@@ -11,10 +11,11 @@ router.get('/events/availablePlanes', authMiddleware(['admin', 'professor']), ev
 router.get('/events/getEventsByProfessor/:professorId', authMiddleware(['admin']), eventController.getEventsByProfessor);
 router.get('/events', eventController.getEventsByType);
 router.get('/professor/:professorId', eventController.getEventsByProfessor);
-router.get('/events/type/:type', eventController.getEventsByType); // Ajoutez cette ligne
+router.get('/events/type/:type', eventController.getEventsByType);
 
 
-module.exports = router;
+router.put('/events/:eventId', authMiddleware(['admin']), eventController.updateEvent);
+router.delete('/events/:eventId', authMiddleware(['admin']), eventController.deleteEvent);
 
 
 module.exports = router;

@@ -35,7 +35,14 @@
           :class="getEventClass(day, hour)"
           :style="getEventStyle(day, hour)"
         >
-          <span @click="openModal(day, hour)" class="event-title">
+          <span
+            @click="
+              getEvent(day, hour).title
+                ? editEvent(getEvent(day, hour))
+                : openModal(day, hour)
+            "
+            class="event-title"
+          >
             {{ getEvent(day, hour).title || '' }}
             {{
               getEvent(day, hour).type === 'course'
@@ -70,8 +77,11 @@
       :users="users"
       :role="userRole"
       :professor-id="currentUserId"
+      :event="selectedEvent"
       @close="closeModal"
       @save="handleSaveEvent"
+      @delete="handleDeleteEvent"
+      @update="handleUpdateEvent"
     />
   </div>
 </template>
@@ -94,6 +104,10 @@ export default {
       localProfessorId: this.professorId,
       courseLocalType: this.courses,
       leisureLocalType: this.leisures,
+      selectedEvent: null,
+      selectedDay: '',
+      selectedHour: '',
+      isModalOpen: false,
     }
   },
   computed: {
@@ -127,8 +141,26 @@ export default {
         const selectedHour = parseInt(hour.split(':')[0], 10)
         this.selectedHour = `${selectedHour}:00`
         this.isModalOpen = true
+        this.selectedEvent = null
       } else {
         alert('You cannot create events')
+      }
+    },
+    async closeModal() {
+      this.isModalOpen = false
+      this.selectedEvent = null
+      this.selectedDay = ''
+      this.selectedHour = ''
+      await this.fetchUserEvents()
+    },
+    async editEvent(event) {
+      if (this.canOpenModal) {
+        this.selectedEvent = event
+        this.selectedDay = event.day
+        this.selectedHour = event.hour
+        this.isModalOpen = true
+      } else {
+        alert('You cannot edit events')
       }
     },
     async selectProfessor(professorId) {
@@ -153,10 +185,7 @@ export default {
   setup() {
     const store = useStore()
     const currentWeekStart = ref(startOfWeek(new Date(), { weekStartsOn: 1 }))
-    const isModalOpen = ref(false)
     const hours = ref(Array.from({ length: 13 }, (_, i) => `${i + 7}:00`))
-    const selectedDay = ref('')
-    const selectedHour = ref('')
     const selectedUser = ref('')
     const courses = ref(store.getters.courses)
     const leisures = ref(store.getters.leisures)
@@ -211,15 +240,16 @@ export default {
       return {}
     }
 
-    const closeModal = () => {
-      fetchUserEvents()
-      isModalOpen.value = false
-    }
-
     const handleSaveEvent = (event) => {
       events.value.push(event)
     }
-
+    const handleDeleteEvent = (eventId) => {
+      events.value = events.value.filter((event) => event._id !== eventId)
+    }
+    const handleUpdateEvent = (event) => {
+      const index = events.value.findIndex((e) => e._id === event._id)
+      events.value[index] = event
+    }
     const fetchUserEvents = async () => {
       try {
         const token = localStorage.getItem('authToken')
@@ -310,11 +340,9 @@ export default {
       getEvent,
       getEventClass,
       getEventStyle,
-      closeModal,
       handleSaveEvent,
-      isModalOpen,
-      selectedDay,
-      selectedHour,
+      handleDeleteEvent,
+      handleUpdateEvent,
       role,
       currentUserId,
       selectedUser,

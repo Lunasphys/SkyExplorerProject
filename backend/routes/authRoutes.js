@@ -22,6 +22,9 @@ router.get('/students', authMiddleware(['admin', 'professor']), authController.g
 router.get('/professors', authMiddleware(['admin', 'professor']), authController.getProfessors);
 router.get('/events/type/:type', eventController.getEventsByType);
 
+router.put('/events/:eventId', authMiddleware(['admin']), eventController.updateEvent);
+router.delete('/events/:eventId', authMiddleware(['admin']), eventController.deleteEvent);
+
 // Plane routes
 router.get('/planes', authMiddleware(['admin', 'professor']), planeController.getPlanes);
 

@@ -107,3 +107,71 @@ exports.getAvailablePlanes = async (req, res) => {
   }
 };
 
+exports.updateEvent = async (req, res) => {
+  const { eventId } = req.params;
+  const { title, type, studentId, professorId, day, hour, duration, planeId } = req.body;
+
+  if (!title || !type || !studentId || !professorId || !day || !hour || !duration || !planeId) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  try {
+    const student = await User.findById(studentId);
+    if (!student || student.role !== 'student') {
+      return res.status(400).json({ message: 'Invalid student ID.' });
+    }
+
+    const professor = await User.findById(professorId);
+    if (!professor || professor.role !== 'professor') {
+      return res.status(400).json({ message: 'Invalid professor ID.' });
+    }
+
+    const plane = await Plane.findById(planeId);
+    if (!plane) {
+      return res.status(400).json({ message: 'Invalid plane ID.' });
+    }
+
+    const event = await Event.findByIdAndUpdate(eventId, {
+      title,
+      type,
+      student: studentId,
+      professor: professorId,
+      day,
+      hour,
+      duration,
+      plane: planeId
+    }, { new: true });
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found.' });
+    }
+
+    res.status(200).json(event);
+  } catch (error) {
+    console.error('Error updating event:', error);
+    res.status(500).json({ message: 'Error updating event.', error });
+  }
+};
+
+exports.deleteEvent = async (req, res) => {
+  const { eventId } = req.params;
+  console.log('Deleting event with ID:', eventId); // Add this line
+
+  try {
+    const event = await Event.findByIdAndDelete(eventId);
+
+    if (!event) {
+      console.log('Event not found'); // Add this line
+      return res.status(404).json({ message: 'Event not found.' });
+    }
+
+    res.status(200).json({ message: 'Event deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    res.status(500).json({ message: 'Error deleting event.', error });
+  }
+};
+
+
+
+

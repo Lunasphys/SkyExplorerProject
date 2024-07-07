@@ -104,6 +104,10 @@
         </div>
         <button type="submit">Save</button>
       </form>
+      <div v-if="event">
+        <button @click="handleDeleteEvent">Delete</button>
+        <button @click="updateEvent">Update</button>
+      </div>
     </div>
   </div>
 </template>
@@ -135,23 +139,39 @@ export default {
       type: String,
       default: '',
     },
+    event: {
+      type: Object,
+      default: null,
+    },
   },
   data() {
     return {
-      title: '',
-      type: 'course',
-      studentId: '',
-      duration: 1,
-      localProfessorId: this.professorId,
-      planeId: '',
+      title: this.event ? this.event.title : '',
+      type: this.event ? this.event.type : 'course',
+      studentId: this.event ? this.event.student._id : '',
+      duration: this.event ? this.event.duration : 1,
+      localProfessorId: this.event
+        ? this.event.professor._id
+        : this.professorId,
+      planeId: this.event ? this.event.plane._id : '',
       planes: [],
+      eventId: this.event ? this.event._id : '',
     }
   },
   computed: {
     ...mapGetters(['professors', 'students']),
+    isEditMode() {
+      return !!this.event
+    },
   },
   methods: {
-    ...mapActions(['fetchProfessors', 'fetchStudents', 'addEvent']),
+    ...mapActions([
+      'fetchProfessors',
+      'fetchStudents',
+      'addEvent',
+      'deleteEvent',
+      'updateEvent',
+    ]),
     async saveEvent() {
       const event = {
         title: this.title,
@@ -179,6 +199,51 @@ export default {
         this.closeModal()
       } catch (error) {
         console.error('Error adding event:', error.response?.data || error)
+      }
+    },
+    async updateEvent() {
+      const updatedEvent = {
+        _id: this.event._id,
+        title: this.title,
+        type: this.type,
+        studentId: this.studentId,
+        professorId: this.localProfessorId,
+        day: this.day,
+        hour: this.hour,
+        duration: this.duration,
+        planeId: this.planeId,
+      }
+      try {
+        const response = await axios.put(
+          `http://localhost:5000/api/events/${this.event._id}`,
+          updatedEvent,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+            },
+          },
+        )
+        this.$emit('update', response.data)
+        this.closeModal()
+      } catch (error) {
+        console.error('Error updating event:', error.response?.data || error)
+      }
+    },
+    async handleDeleteEvent() {
+      try {
+        const token = localStorage.getItem('authToken')
+        await axios.delete(
+          `http://localhost:5000/api/events/${this.event._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        this.$emit('delete', this.event._id)
+        this.closeModal()
+      } catch (error) {
+        console.error('Error deleting event:', error.response?.data || error)
       }
     },
     async checkPlaneAvailability() {
@@ -247,7 +312,7 @@ export default {
 }
 
 .close {
-  position: absolute;
+  display: flex;
   top: 10px;
   right: 20px;
   font-size: 30px;

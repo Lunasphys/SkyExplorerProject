@@ -7,6 +7,7 @@ export default createStore({
     user: null,
     events: [],
     isAuthenticated: false,
+    eventId: '',
     students: [],
     professors: [],
     planes: [],
@@ -19,16 +20,16 @@ export default createStore({
     user: (state) => state.user,
     events: (state) => state.events,
     isAuthenticated: (state) => !!state.user,
+    eventId: (state) => (state.event ? state.event._id : ''),
     userRole: (state) => (state.user ? state.user.role : ''),
     currentUserId: (state) => state.user?._id,
     students: (state) => state.students,
     professors: (state) => state.professors,
     planes: (state) => state.planes,
     professorId: (state) => (state.user ? state.user._id : ''),
-    courses: (state) =>
-      state.events.type ? state.events.type === 'course' : [],
+    courses: (state) => state.events.filter((event) => event.type === 'course'),
     leisures: (state) =>
-      state.events.type ? state.events.type === 'leisure' : [],
+      state.events.filter((event) => event.type === 'leisure'),
   },
   actions: {
     async login({ commit }, { mail, password }) {
@@ -86,9 +87,7 @@ export default createStore({
             Authorization: `Bearer ${token}`,
           },
         })
-        console.log('API Response:', response)
         commit('setEvents', response.data)
-        console.log('Events fetched successfully')
       } catch (error) {
         console.error('Failed to fetch events:', error)
         commit('setEvents', [])
@@ -115,6 +114,22 @@ export default createStore({
     },
     addEvent({ commit }, event) {
       commit('addEvent', event)
+    },
+    async updateEvent({ commit }, updatedEvent) {
+      try {
+        const response = await axios.put(
+          `http://localhost:5000/api/events/${updatedEvent._id}`,
+          updatedEvent,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+            },
+          },
+        )
+        commit('updateEvent', response.data)
+      } catch (error) {
+        console.error('Error updating event:', error)
+      }
     },
     async fetchStudents({ commit }) {
       const token = localStorage.getItem('authToken')
@@ -156,7 +171,6 @@ export default createStore({
       }
     },
     async fetchEventsByType({ commit }, type) {
-      console.log(`Fetching events of type: ${type}`)
       try {
         const token = localStorage.getItem('authToken')
         if (!token) {
@@ -170,8 +184,7 @@ export default createStore({
             },
           },
         )
-        console.log('Fetched events:', response.data)
-        commit('setEventsType', response.data)
+        commit('setEvents', response.data)
       } catch (error) {
         console.error('Error fetching events:', error)
       }
@@ -203,24 +216,6 @@ export default createStore({
         console.error('Failed to fetch available planes:', error)
       }
     },
-    async deleteEvent({ commit }, eventId) {
-      const token = localStorage.getItem('authToken')
-      if (!token) {
-        console.error('Authentication token not found')
-        return
-      }
-
-      try {
-        await axios.delete(`http://localhost:5000/api/events/${eventId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        commit('removeEvent', eventId)
-      } catch (error) {
-        console.error('Failed to delete event:', error)
-      }
-    },
   },
   mutations: {
     setEvents(state, events) {
@@ -235,7 +230,15 @@ export default createStore({
     addEvent(state, event) {
       state.events.push(event)
     },
-    removeEvent(state, eventId) {
+    updateEvent(state, updatedEvent) {
+      const index = state.events.findIndex(
+        (event) => event._id === updatedEvent._id,
+      )
+      if (index !== -1) {
+        state.events.splice(index, 1, updatedEvent)
+      }
+    },
+    deleteEvent(state, eventId) {
       state.events = state.events.filter((event) => event._id !== eventId)
     },
     setAuthenticated(state, isAuthenticated) {
@@ -254,7 +257,7 @@ export default createStore({
       state.professorId = professorId
     },
     setEventsType(state, events) {
-      state.events = state.events.filter((event) => event.type === events.type)
+      state.events = events
     },
   },
 })
