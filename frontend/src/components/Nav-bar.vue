@@ -87,6 +87,7 @@ export default {
   border-right: 2px solid #2f383b;
   width: 80px;
   height: 100%;
+  place-content: center;
 }
 
 .nav-item {
@@ -109,6 +110,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 7px;
 }
 
 .slide-enter-active,

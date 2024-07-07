@@ -1,20 +1,23 @@
 <template>
   <div class="container">
-    <h1>Informations sur les Cours de Vol de {{ student.first_name }} {{ student.last_name }}</h1>
+    <h1>
+      Informations sur les Cours de Vol de {{ student.first_name }}
+      {{ student.last_name }}
+    </h1>
     <table>
       <thead>
-      <tr>
-        <th>Type</th>
-        <th>Date</th>
-        <th>Durée (en heures)</th>
-      </tr>
+        <tr>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Durée (en heures)</th>
+        </tr>
       </thead>
       <tbody>
-      <tr>
-        <td>{{ flight.type }}</td>
-        <td>{{ flight.date }}</td>
-        <td>{{ flight.duration }}</td>
-      </tr>
+        <tr>
+          <td>{{ flight.type }}</td>
+          <td>{{ flight.date }}</td>
+          <td>{{ flight.duration }}</td>
+        </tr>
       </tbody>
     </table>
     <div class="bill">
@@ -30,33 +33,34 @@ export default {
     return {
       student: {
         first_name: this.student.first_name,
-        last_name: this.student.last_name
+        last_name: this.student.last_name,
       },
       flight: {
         type: this.flight.type,
         date: this.flight.date,
-        duration: this.flight.duration
-      }
+        duration: this.flight.duration,
+      },
     }
   },
   computed: {
     canGenerateBill() {
       return this.userRole === 'admin' || this.userRole === 'professor'
-    }
+    },
   },
   methods: {
     async generateBill() {
-      const billSection = document.querySelector('.bill');
+      const billSection = document.querySelector('.bill')
       // Check if user is authorized to generate bill
       if (!this.canGenerateBill) {
         //Display none
-        billSection.style.display = 'none';
+        billSection.style.display = 'none'
       } else {
-          // Display block
-          billSection.style.display = 'block';
-        }
+        // Display block
+        billSection.style.display = 'block'
       }
-    }
+    },
+  },
+}
 </script>
 
 <style scoped>
@@ -88,7 +92,8 @@ table {
   margin-top: 20px;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;

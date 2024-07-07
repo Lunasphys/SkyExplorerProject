@@ -68,6 +68,7 @@ body {
 
 .main-content {
   margin-left: 80px;
+  align-content: center;
   flex: 1;
   overflow: auto;
   transition: margin-left 0.3s ease;
