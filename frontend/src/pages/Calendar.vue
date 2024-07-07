@@ -370,8 +370,10 @@ export default {
   background: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 1200px;
-  margin: auto;
+  max-width: 1600px;
+  margin-top: 5%;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .header {
