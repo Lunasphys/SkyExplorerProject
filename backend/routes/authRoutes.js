@@ -20,6 +20,7 @@ router.get('/users', authMiddleware(['admin', 'professor']), authController.getU
 router.get('/user', authMiddleware(), authController.getUser);
 router.get('/students', authMiddleware(['admin', 'professor']), authController.getStudents);
 router.get('/professors', authMiddleware(['admin', 'professor']), authController.getProfessors);
+router.get('/events/type/:type', eventController.getEventsByType);
 
 // Plane routes
 router.get('/planes', authMiddleware(['admin', 'professor']), planeController.getPlanes);

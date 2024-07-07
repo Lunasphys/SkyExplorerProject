@@ -11,6 +11,8 @@ export default createStore({
     professors: [],
     planes: [],
     professorId: '',
+    courses: [],
+    leisures: [],
   },
   getters: {
     loginMessage: (state) => state.loginMessage,
@@ -23,6 +25,10 @@ export default createStore({
     professors: (state) => state.professors,
     planes: (state) => state.planes,
     professorId: (state) => (state.user ? state.user._id : ''),
+    courses: (state) =>
+      state.events.type ? state.events.type === 'course' : [],
+    leisures: (state) =>
+      state.events.type ? state.events.type === 'leisure' : [],
   },
   actions: {
     async login({ commit }, { mail, password }) {
@@ -149,6 +155,27 @@ export default createStore({
         console.error('Failed to fetch professors:', error)
       }
     },
+    async fetchEventsByType({ commit }, type) {
+      console.log(`Fetching events of type: ${type}`)
+      try {
+        const token = localStorage.getItem('authToken')
+        if (!token) {
+          throw new Error('No token found')
+        }
+        const response = await axios.get(
+          `http://localhost:5000/api/events/type/${type}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        console.log('Fetched events:', response.data)
+        commit('setEventsType', response.data)
+      } catch (error) {
+        console.error('Error fetching events:', error)
+      }
+    },
     async getAvailablePlanes({ commit }, { day, hour, duration }) {
       if (!day || !hour || !duration) {
         console.error('day, hour, and duration are required')
@@ -225,6 +252,9 @@ export default createStore({
     },
     setProfessorId(state, professorId) {
       state.professorId = professorId
+    },
+    setEventsType(state, events) {
+      state.events = state.events.filter((event) => event.type === events.type)
     },
   },
 })

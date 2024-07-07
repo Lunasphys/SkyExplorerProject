@@ -6,7 +6,7 @@
       <button @click="nextWeek" class="nav-button">Next</button>
     </div>
     <h1>{{ userRole }}</h1>
-    <div class="professors-list">
+    <div v-if="userRole === 'admin'" class="professors-list">
       <div
         v-for="professor in professors"
         :key="professor._id"
@@ -16,6 +16,8 @@
         {{ professor.first_name }} {{ professor.last_name }}
       </div>
       <div @click="allEvents" class="professor-item">All</div>
+      <div @click="allEventOfTypesCourse" class="professor-item">Cours</div>
+      <div @click="allEventOfTypesLeisure" class="professor-item">Loisir</div>
     </div>
     <div class="week">
       <div class="hours-column">
@@ -90,6 +92,8 @@ export default {
   data() {
     return {
       localProfessorId: this.professorId,
+      courseLocalType: this.courses,
+      leisureLocalType: this.leisures,
     }
   },
   computed: {
@@ -100,6 +104,8 @@ export default {
       'currentUserId',
       'professors',
       'professorId',
+      'courses',
+      'leisures',
     ]),
     canOpenModal() {
       return this.userRole === 'admin' || this.userRole === 'professor'
@@ -113,6 +119,7 @@ export default {
       'fetchProfessors',
       'addEvent',
       'getAvailablePlanes',
+      'fetchEventsByType',
     ]),
     async openModal(day, hour) {
       if (this.canOpenModal) {
@@ -131,6 +138,12 @@ export default {
     async allEvents() {
       await this.fetchUserEvents()
     },
+    async allEventOfTypesCourse() {
+      await this.fetchEventsByType('course')
+    },
+    async allEventOfTypesLeisure() {
+      await this.fetchEventsByType('leisure')
+    },
   },
   created() {
     this.fetchStudents()
@@ -145,6 +158,8 @@ export default {
     const selectedDay = ref('')
     const selectedHour = ref('')
     const selectedUser = ref('')
+    const courses = ref(store.getters.courses)
+    const leisures = ref(store.getters.leisures)
     const users = ref([])
     const events = ref(store.getters.events)
     const currentUserId = ref(store.getters.currentUserId)
@@ -225,6 +240,27 @@ export default {
         console.error('Error fetching events:', error)
       }
     }
+    const fetchEventsByType = async (type) => {
+      console.log(`Fetching events of type: ${type}`)
+      try {
+        const token = localStorage.getItem('authToken')
+        if (!token) {
+          throw new Error('No token found')
+        }
+        const response = await axios.get(
+          `http://localhost:5000/api/events/type/${type}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        console.log('Fetched events:', response.data)
+        events.value = response.data
+      } catch (error) {
+        console.error('Error fetching events:', error)
+      }
+    }
     const fetchEventsForProfessor = async (professorId) => {
       try {
         const token = localStorage.getItem('authToken')
@@ -260,6 +296,8 @@ export default {
       await store.dispatch('fetchStudents')
       await store.dispatch('fetchEvents')
       professorId.value = store.getters.professorId
+      leisures.value = store.getters.leisures
+      courses.value = store.getters.courses
       currentUserId.value = store.getters.currentUserId
       role.value = store.getters.userRole
       await fetchUserEvents()
@@ -286,7 +324,10 @@ export default {
       nextWeek,
       prevWeek,
       professorId,
+      courses,
+      leisures,
       fetchEventsForProfessor,
+      fetchEventsByType,
     }
   },
 }

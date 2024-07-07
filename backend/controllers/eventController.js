@@ -65,6 +65,20 @@ exports.getEventsByProfessor = async (req, res) => {
   }
 };
 
+exports.getEventsByType = async (req, res) => {
+  try {
+    const { type } = req.params;
+    console.log(`Fetching events of type: ${type}`);
+
+    const events = await Event.find({ type: type }).populate('student').populate('professor').populate('plane');
+    console.log(`Found ${events.length} events of type ${type}`);
+
+    res.json(events);
+  } catch (error) {
+    console.error("Error fetching events by type:", error);
+    res.status(500).send("Error fetching events by type");
+  }
+};
 
 exports.getAvailablePlanes = async (req, res) => {
   try {
