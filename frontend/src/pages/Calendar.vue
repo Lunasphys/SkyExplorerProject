@@ -15,6 +15,7 @@
       >
         {{ professor.first_name }} {{ professor.last_name }}
       </div>
+      <div @click="allEvents" class="professor-item">All</div>
     </div>
     <div class="week">
       <div class="hours-column">
@@ -126,6 +127,9 @@ export default {
     async selectProfessor(professorId) {
       this.localProfessorId = professorId
       await this.fetchEventsForProfessor(professorId)
+    },
+    async allEvents() {
+      await this.fetchUserEvents()
     },
   },
   created() {
