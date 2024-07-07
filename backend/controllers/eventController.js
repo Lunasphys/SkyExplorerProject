@@ -54,6 +54,18 @@ exports.getEvents = async (req, res) => {
   }
 };
 
+exports.getEventsByProfessor = async (req, res) => {
+  try {
+    const professorId = req.params.professorId;
+    const events = await Event.find({ professor: professorId }).populate('student').populate('professor').populate('plane');
+    res.status(200).json(events);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ message: 'Error fetching events.', error });
+  }
+};
+
+
 exports.getAvailablePlanes = async (req, res) => {
   try {
     const { day, hour, duration } = req.query;
@@ -80,3 +92,4 @@ exports.getAvailablePlanes = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+

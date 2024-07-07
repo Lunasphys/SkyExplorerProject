@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Event = require('../models/Event');
 const bcrypt = require('bcrypt');
 
 const hashPassword = async (password) => {
@@ -66,7 +67,6 @@ exports.getProfessors = async (req, res) => {
     res.status(500).json({ message: 'Error fetching professors', error });
   }
 };
-
 
 exports.register = async (req, res) => {
   try {

@@ -9,11 +9,11 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/createAccount', authController.createAccount);
-
 // Event routes
 router.get('/events', authMiddleware(), eventController.getEvents);
 router.post('/events', authMiddleware(['professor', 'admin']), eventController.createEvent);
 router.get('/events/availablePlanes', authMiddleware(['admin', 'professor']), eventController.getAvailablePlanes);
+router.get('/professor/:professorId', eventController.getEventsByProfessor);
 
 // User routes
 router.get('/users', authMiddleware(['admin', 'professor']), authController.getUsers);

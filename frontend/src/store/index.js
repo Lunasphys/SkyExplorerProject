@@ -10,6 +10,7 @@ export default createStore({
     students: [],
     professors: [],
     planes: [],
+    professorId: '',
   },
   getters: {
     loginMessage: (state) => state.loginMessage,
@@ -21,6 +22,7 @@ export default createStore({
     students: (state) => state.students,
     professors: (state) => state.professors,
     planes: (state) => state.planes,
+    professorId: (state) => (state.user ? state.user._id : ''),
   },
   actions: {
     async login({ commit }, { mail, password }) {
@@ -84,6 +86,25 @@ export default createStore({
       } catch (error) {
         console.error('Failed to fetch events:', error)
         commit('setEvents', [])
+      }
+    },
+    async fetchEventsForProfessor({ commit }, professorId) {
+      try {
+        const token = localStorage.getItem('authToken')
+        if (!token) {
+          throw new Error('No token found')
+        }
+        const response = await axios.get(
+          `http://localhost:5000/api/events/professor/${professorId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        commit('setEvents', response.data)
+      } catch (error) {
+        console.error('Error fetching events:', error)
       }
     },
     addEvent({ commit }, event) {
@@ -201,6 +222,9 @@ export default createStore({
     },
     setPlanes(state, planes) {
       state.planes = planes
+    },
+    setProfessorId(state, professorId) {
+      state.professorId = professorId
     },
   },
 })
