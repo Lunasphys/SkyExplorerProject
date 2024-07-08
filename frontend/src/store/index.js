@@ -4,7 +4,7 @@ import axios from 'axios'
 export default createStore({
   state: {
     loginMessage: '',
-    user: null,
+    userName: '',
     events: [],
     isAuthenticated: false,
     eventId: '',
@@ -17,7 +17,8 @@ export default createStore({
   },
   getters: {
     loginMessage: (state) => state.loginMessage,
-    user: (state) => state.user,
+    userName: (state) =>
+      state.user ? state.user.first_name + ' ' + state.user.last_name : '',
     events: (state) => state.events,
     isAuthenticated: (state) => !!state.user,
     eventId: (state) => (state.event ? state.event._id : ''),
@@ -39,9 +40,7 @@ export default createStore({
           password,
         })
         const token = response.data.token
-        const role = response.data.user.role
         localStorage.setItem('authToken', token)
-        localStorage.setItem('userRole', role)
         commit('setUser', response.data.user)
         commit('setLoginMessage', response.data.message)
         commit('setAuthenticated', true)

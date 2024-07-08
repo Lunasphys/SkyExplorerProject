@@ -1,11 +1,9 @@
 <template>
   <div class="navbar">
-    <!-- Always visible login icon -->
     <router-link to="/login" class="nav-item login-item">
       <img src="../assets/login.jpg" alt="Connexion" class="icon" />
     </router-link>
 
-    <!-- Authenticated items with sliding transition -->
     <transition-group name="slide" tag="div" class="auth-items">
       <router-link
         v-if="isAuthenticated"
@@ -88,6 +86,7 @@ export default {
   width: 80px;
   height: 100%;
   place-content: center;
+  z-index: 2;
 }
 
 .nav-item {

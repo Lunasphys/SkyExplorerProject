@@ -5,7 +5,7 @@
       <h2>{{ formattedWeek }}</h2>
       <button @click="nextWeek" class="nav-button">Next</button>
     </div>
-    <h1>{{ userRole }}</h1>
+    <h1>{{ userName }} : {{ userRole }}</h1>
     <div v-if="userRole === 'admin'" class="professors-list">
       <div
         v-for="professor in professors"
@@ -13,7 +13,7 @@
         @click="selectProfessor(professor._id)"
         class="professor-item"
       >
-        {{ professor.first_name }} {{ professor.last_name }}
+        <span> {{ professor.first_name }} {{ professor.last_name }} </span>
       </div>
       <div @click="allEvents" class="professor-item">All</div>
       <div @click="allEventOfTypesCourse" class="professor-item">Cours</div>
@@ -120,6 +120,7 @@ export default {
       'professorId',
       'courses',
       'leisures',
+      'user',
     ]),
     canOpenModal() {
       return this.userRole === 'admin' || this.userRole === 'professor'
@@ -190,6 +191,7 @@ export default {
     const courses = ref(store.getters.courses)
     const leisures = ref(store.getters.leisures)
     const users = ref([])
+    const userName = ref(store.getters.userName)
     const events = ref(store.getters.events)
     const currentUserId = ref(store.getters.currentUserId)
     const role = ref(store.getters.userRole)
@@ -330,6 +332,8 @@ export default {
       courses.value = store.getters.courses
       currentUserId.value = store.getters.currentUserId
       role.value = store.getters.userRole
+      users.value = store.getters.user
+      userName.value = store.getters.userName
       await fetchUserEvents()
     })
 
@@ -344,6 +348,7 @@ export default {
       handleDeleteEvent,
       handleUpdateEvent,
       role,
+      userName,
       currentUserId,
       selectedUser,
       users,
@@ -465,8 +470,10 @@ export default {
 .professors-list {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
   margin-bottom: 20px;
+  gap: 0.2vh;
+  align-self: start;
+  align-items: center;
 }
 
 .professor-item {
@@ -478,6 +485,7 @@ export default {
   background-color: #f9f9f9;
   color: #007bff;
   transition: background-color 0.3s, color 0.3s;
+  align-content: center;
 }
 
 .professor-item:hover {

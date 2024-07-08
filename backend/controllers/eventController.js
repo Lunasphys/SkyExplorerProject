@@ -155,13 +155,13 @@ exports.updateEvent = async (req, res) => {
 
 exports.deleteEvent = async (req, res) => {
   const { eventId } = req.params;
-  console.log('Deleting event with ID:', eventId); // Add this line
+  console.log('Deleting event with ID:', eventId);
 
   try {
     const event = await Event.findByIdAndDelete(eventId);
 
     if (!event) {
-      console.log('Event not found'); // Add this line
+      console.log('Event not found');
       return res.status(404).json({ message: 'Event not found.' });
     }
 

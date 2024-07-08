@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const Event = require('../models/Event');
 const bcrypt = require('bcrypt');
 
 const hashPassword = async (password) => {
@@ -29,7 +28,11 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: 'Incorrect credentials' });
     }
 
-    const token = jwt.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { _id: user._id, role: user.role, first_name: user.first_name, last_name: user.last_name },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
     console.log('User logged in successfully:', user);
     res.json({ message: 'Login successful', token });
   } catch (error) {
@@ -37,6 +40,7 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Error logging in', error });
   }
 };
+
 
 exports.getUsers = async (req, res) => {
   try {

@@ -51,6 +51,36 @@ export default {
 </script>
 
 <style>
+@font-face {
+  font-family: 'Quicksand';
+  src: url('./assets/font/Quicksand-Bold.ttf') format('truetype');
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: 'Quicksand';
+  src: url('./assets/font/Quicksand-Light.ttf') format('truetype');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'Quicksand';
+  src: url('./assets/font/Quicksand-Medium.ttf') format('truetype');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Quicksand';
+  src: url('./assets/font/Quicksand-Regular.ttf') format('truetype');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'Quicksand';
+  src: url('./assets/font/Quicksand-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+}
+
 #app {
   display: flex;
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -65,16 +95,35 @@ body {
   padding: 0;
   overflow: hidden;
   background-color: #001933ba;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: normal;
+}
+
+h1,
+button {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: bold;
+}
+
+h2,
+h3 {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+}
+
+span {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 300;
 }
 
 .main-content {
-  margin-left: 80px;
+  margin-left: 5%;
   align-content: center;
   flex: 1;
   overflow: auto;
   transition: margin-left 0.3s ease;
   position: fixed;
-  width: 100%;
+  width: 95%;
   height: 100%;
 }
 
