@@ -1,4 +1,4 @@
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -27,7 +27,7 @@ mongoose.connection.on('disconnected', () => {
   console.log('Mongoose disconnected from the database');
 });
 
-// Connect to the database
+// Connexion à la database -> penser à lancer populateDabase.Js
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -38,7 +38,7 @@ app.use('/api', authRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/planes', planeRoutes);
 
-// Start the server
+// Demarre le serveur
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

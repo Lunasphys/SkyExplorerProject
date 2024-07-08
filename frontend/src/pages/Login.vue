@@ -53,7 +53,9 @@ export default {
         await this.$router.push('./dashboard')
       } catch (error) {
         console.error('Login error:', error)
-        alert('Failed to login. Please check your credentials.')
+        alert(
+          'Erreur de connexion, veuillez réessayer. Mauvais email ou mot de passe.',
+        )
       }
     },
   },

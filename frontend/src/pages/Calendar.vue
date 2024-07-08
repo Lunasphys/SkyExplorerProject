@@ -43,7 +43,6 @@
             "
             class="event-title"
           >
-            {{ getEvent(day, hour).title || '' }}
             {{
               getEvent(day, hour).type === 'course'
                 ? '📚'
@@ -53,17 +52,17 @@
             }}
             {{
               getEvent(day, hour).student
-                ? `(${getEvent(day, hour).student.first_name})`
+                ? `${getEvent(day, hour).student.first_name} 👨‍🎓`
                 : ''
             }}
             {{
               getEvent(day, hour).professor
-                ? `(${getEvent(day, hour).professor.first_name})`
+                ? `${getEvent(day, hour).professor.first_name} 👩‍🏫`
                 : ''
             }}
             {{
               getEvent(day, hour).plane
-                ? `(${getEvent(day, hour).plane.name})`
+                ? `${getEvent(day, hour).plane.name} 🛬`
                 : ''
             }}
           </span>
@@ -465,6 +464,7 @@ export default {
   left: 0;
   right: 0;
   font-size: 12px;
+  text-align: center;
 }
 
 .professors-list {

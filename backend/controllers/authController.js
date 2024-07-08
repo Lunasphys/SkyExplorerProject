@@ -14,8 +14,6 @@ const comparePassword = async (plainPassword, hashedPassword) => {
 exports.login = async (req, res) => {
   try {
     const { mail, password } = req.body;
-    console.log('Login attempt received:', { mail, password });
-
     const user = await User.findOne({ mail });
     if (!user) {
       console.log('User not found:', mail);
