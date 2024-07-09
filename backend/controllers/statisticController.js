@@ -7,14 +7,16 @@ exports.getStatistics = async (req, res) => {
       { $group: { _id: null, totalDuration: { $sum: "$duration" } } }
     ]);
 
-    const totalLessons = await Event.countDocuments({ type: 'course' });
+    const totalLessons = await Event.find({type: type}).countDocuments();
+    const totalLeisure = await Event.find({type: "leisure"}).countDocuments();
 
-    const totalUsers = await User.countDocuments();
+    const totalStudents = await User.find({role: "student"}).countDocuments();
 
     res.status(200).json({
       totalFlightTime: totalFlightTime[0]?.totalDuration || 0,
       totalLessons,
-      totalUsers,
+      totalLeisure,
+      totalStudents,
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching statistics', error });
