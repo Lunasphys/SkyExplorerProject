@@ -37,6 +37,7 @@ const billSchema = new mongoose.Schema({
   updated_from: { type: Date, required: true },
   updated_to: { type: Date, required: true },
   price: { type: Number, required: true },
+  payed: {type: Boolean, required: true },
 });
 
 const flightSchema = new mongoose.Schema({

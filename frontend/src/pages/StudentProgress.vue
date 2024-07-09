@@ -36,7 +36,7 @@ import { use } from 'bcrypt/promises'
 export default {
   name: 'StudentProgress',
   computed: {
-    ...mapGetters(['userRole', 'students']),
+    ...mapGetters(['userRole', 'students', 'userName']),
     canGenerateBill() {
       return this.userRole === 'admin' || this.userRole === 'professor'
     },

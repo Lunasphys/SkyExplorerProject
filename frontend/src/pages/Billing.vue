@@ -182,9 +182,32 @@
 </template>
 
 <script>
+import { mapGetters, useStore } from 'vuex'
+import { ref } from 'vue'
+
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Billing',
+  computed: {
+    ...mapGetters(['students', 'userName', 'eventId', 'courses', 'leisures']),
+  },
+  setup() {
+    const store = useStore()
+    const selectedUser = ref('')
+    const users = ref([])
+    const userName = ref(store.getters.userName)
+    const currentUserId = ref(store.getters.currentUserId)
+    const role = ref(store.getters.userRole)
+    const eventId = ref('')
+    return {
+      role,
+      userName,
+      users,
+      currentUserId,
+      selectedUser,
+      eventId,
+    }
+  },
 }
 </script>
 
