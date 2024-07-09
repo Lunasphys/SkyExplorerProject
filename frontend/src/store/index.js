@@ -14,6 +14,11 @@ export default createStore({
     professorId: '',
     courses: [],
     leisures: [],
+    statistics: {
+      totalFlightTime: 0,
+      totalLessons: 0,
+      totalUsers: 0,
+    },
   },
   getters: {
     loginMessage: (state) => state.loginMessage,
@@ -32,6 +37,7 @@ export default createStore({
     leisures: (state) =>
       state.events.filter((event) => event.type === 'leisure'),
   },
+  statistics: (state) => state.statistics,
   actions: {
     async login({ commit }, { mail, password }) {
       try {
@@ -215,6 +221,21 @@ export default createStore({
         console.error('Failed to fetch available planes:', error)
       }
     },
+    async fetchStatistics({ commit }) {
+      try {
+        const response = await axios.get(
+          'http://localhost:5000/api/events/statistics',
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+            },
+          },
+        )
+        commit('setStatistics', response.data)
+      } catch (error) {
+        console.error('Error fetching statistics:', error)
+      }
+    },
   },
   mutations: {
     setEvents(state, events) {
@@ -257,6 +278,9 @@ export default createStore({
     },
     setEventsType(state, events) {
       state.events = events
+    },
+    setStatistics(state, statistics) {
+      state.statistics = statistics
     },
   },
 })

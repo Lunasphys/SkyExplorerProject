@@ -3,6 +3,7 @@ const router = express.Router();
 const eventController = require('../controllers/eventController');
 const authMiddleware = require('../middleware/authMiddleware');
 const authController = require("../controllers/authController");
+const statisticsController = require('../controllers/statisticController');
 
 
 router.get('/events', authMiddleware(), eventController.getEvents);
@@ -17,5 +18,6 @@ router.get('/events/type/:type', eventController.getEventsByType);
 router.put('/events/:eventId', authMiddleware(['admin']), eventController.updateEvent);
 router.delete('/events/:eventId', authMiddleware(['admin']), eventController.deleteEvent);
 
+router.get('/statistics', authMiddleware(['admin']), statisticsController.getStatistics);
 
 module.exports = router;
