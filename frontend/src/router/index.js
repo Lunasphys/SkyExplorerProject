@@ -5,15 +5,17 @@ import AdminSchedule from '../pages/AdminSchedule.vue'
 import Billing from '../pages/Billing.vue'
 import Statistics from '../pages/Statistics.vue'
 import StudentProgress from '../pages/StudentProgress.vue'
+import Signup from '../pages/Signup.vue'
 
 const routes = [
   { path: '/', component: Login },
   { path: '/login', component: Login },
+  { path: '/signup', component: Signup },
   { path: '/dashboard', component: Dashboard },
   { path: '/admin/schedule', component: AdminSchedule },
   { path: '/billing', component: Billing },
   { path: '/statistics', component: Statistics },
-  { path: '/student/progress', component: StudentProgress },
+  { path: '/student_progress', component: StudentProgress },
 ]
 
 const router = createRouter({

@@ -31,7 +31,7 @@
       </router-link>
       <router-link
         v-if="isAuthenticated"
-        to="/student/progress"
+        to="/student_progress"
         class="nav-item"
         key="student-progress"
       >

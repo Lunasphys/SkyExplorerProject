@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
   postal_code: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['admin', 'professor', 'student'], required: true },
+  city: { type: String, required: true },
 });
 
 const eventSchema = new mongoose.Schema({
@@ -127,6 +128,7 @@ const insertData = async () => {
       postal_code: '12345',
       password: await hashPassword('aaa'), // Hachage du mot de passe
       role: 'student',
+      city:'NewYork',
     });
 
     const janeSmith = new User({
@@ -140,6 +142,7 @@ const insertData = async () => {
       postal_code: '54321',
       password: await hashPassword('aaa'), // Hachage du mot de passe
       role: 'professor',
+      city:'Marseille',
     });
 
     const adminUser = new User({
@@ -153,6 +156,7 @@ const insertData = async () => {
       postal_code: '12345',
       password: await hashPassword('aaa'), // Hachage du mot de passe
       role: 'admin',
+      city:'Tokyo',
     });
 
     await johnDoe.save();
