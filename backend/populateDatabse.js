@@ -191,19 +191,19 @@ const insertData = async () => {
     await mathCourse.save();
     await artClass.save();
 
-    // Insertion des bills
+    // Insertion des factures
     await Bill.insertMany([
       { updated_from: new Date('2023-01-01'), updated_to: new Date('2023-01-31'), price: 1000 },
       { updated_from: new Date('2023-02-01'), updated_to: new Date('2023-02-28'), price: 1500 },
     ]);
 
-    // Insertion des flights
+    // Insertion des vols
     await Flight.insertMany([
       { type: 'training', date: new Date('2023-01-15'), duration: 60 },
       { type: 'recreational', date: new Date('2023-02-20'), duration: 90 },
     ]);
 
-    // Insertion des payments
+    // Insertion des paiements
     await Payment.insertMany([
       { title: 'Credit Card' },
       { title: 'PayPal' },
