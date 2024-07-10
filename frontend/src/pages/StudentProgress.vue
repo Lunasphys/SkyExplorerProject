@@ -49,7 +49,7 @@
 import { mapActions, mapGetters, useStore } from 'vuex'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
-import Billing from '@/components/Billing.vue'
+import Billing from '@/pages/Billing.vue'
 
 export default {
   name: 'StudentProgress',
