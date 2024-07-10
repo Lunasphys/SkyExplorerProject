@@ -37,7 +37,8 @@ const billSchema = new mongoose.Schema({
   updated_from: { type: Date, required: true },
   updated_to: { type: Date, required: true },
   price: { type: Number, required: true },
-  payed: {type: Boolean, required: true },
+  payed: {type: Boolean, required: true }, // Ajout de la propriété payed
+  pdf: { type: Buffer } // Stockage du PDF en tant que buffer
 });
 
 const flightSchema = new mongoose.Schema({

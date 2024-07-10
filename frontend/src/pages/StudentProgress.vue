@@ -1,59 +1,102 @@
 <template>
   <div class="container">
+    <div v-if="userRole === 'admin'" class="student-list">
+      <div
+        v-for="student in students"
+        :key="student._id"
+        @click="selectStudent(student._id)"
+        class="student-item"
+      >
+        <span> {{ student.first_name }} {{ student.last_name }}</span>
+      </div>
+    </div>
     <h1>Informations sur les Cours de Vol de {{ userName }}</h1>
     <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Date</th>
-          <th>Durée (en heures)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>type</td>
-          <td>date</td>
-          <td>duration</td>
-        </tr>
-      </tbody>
+      <div v-for="course in courses" :key="course._id" class="course-item">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Durée (en heures)</th>
+            <th>Factures</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ course.type }}</td>
+            <td>{{ course.day }}</td>
+            <td>{{ course.duration }}</td>
+            <td v-for="bill in bills" :key="bill._id" class="bill-item">
+              {{ bill.pdf }}
+            </td>
+          </tr>
+        </tbody>
+      </div>
     </table>
     <div class="bill" v-if="userRole === 'admin'">
-      <button>
-        <router-link to="/billing" key="billing"
-          >Etablir une facture
-        </router-link>
-      </button>
+      <button @click="openModal(studentId)">Etablir une facture</button>
     </div>
+    <Billing
+      v-if="isModalOpen"
+      :users="users"
+      :role="userRole"
+      @close="closeModal"
+    />
   </div>
 </template>
 
 <script>
-import { mapGetters, useStore } from 'vuex'
+import { mapActions, mapGetters, useStore } from 'vuex'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
-import { use } from 'bcrypt/promises'
+import Billing from '@/components/Billing.vue'
 
 export default {
   name: 'StudentProgress',
+  components: { Billing },
+  data() {
+    return {
+      localStudentId: this.studentId,
+    }
+  },
   computed: {
-    ...mapGetters(['userRole', 'students', 'userName']),
-    canGenerateBill() {
-      return this.userRole === 'admin' || this.userRole === 'professor'
+    ...mapGetters([
+      'userRole',
+      'students',
+      'studentId',
+      'userName',
+      'courses',
+      'leisures',
+      'user',
+      'userRole',
+      'events',
+    ]),
+    canOpenModal() {
+      return this.userRole === 'admin'
     },
   },
   methods: {
-    use,
-    async generateBill() {
-      const billSection = document.querySelector('.bill')
-      // Check if user is authorized to generate bill
-      if (!this.canGenerateBill) {
-        //Display none
-        billSection.style.display = 'none'
+    ...mapActions(['fetchStudents']),
+    async selectStudent(studentId) {
+      this.localStudentId = studentId
+      await this.fetchStudents(studentId)
+    },
+    async openModal(studentId) {
+      if (this.canOpenModal) {
+        this.isModalOpen = true
+        this.localStudentId = studentId
+        await this.fetchStudents(studentId)
       } else {
-        // Display block
-        billSection.style.display = 'block'
+        alert('You cannot access this page')
       }
     },
+    async closeModal() {
+      this.isModalOpen = false
+      await this.fetchUserEvents()
+    },
+  },
+  created() {
+    this.fetchStudents()
   },
   setup() {
     const store = useStore()
@@ -63,6 +106,9 @@ export default {
     const events = ref(store.getters.events)
     const currentUserId = ref(store.getters.currentUserId)
     const role = ref(store.getters.userRole)
+    const studentId = ref(store.getters.studentId)
+    const courses = ref(store.getters.courses)
+    const leisures = ref(store.getters.leisures)
     const fetchUserEvents = async () => {
       try {
         const token = localStorage.getItem('authToken')
@@ -112,6 +158,9 @@ export default {
       role.value = store.getters.userRole
       users.value = store.getters.user
       userName.value = store.getters.userName
+      courses.value = store.getters.courses
+      leisures.value = store.getters.leisures
+      studentId.value = store.getters.studentId
       await fetchUserEvents()
     })
     return {
@@ -121,6 +170,7 @@ export default {
       selectedUser,
       users,
       events,
+      studentId,
       fetchUserEvents,
       fetchEventsByType,
     }
@@ -162,6 +212,7 @@ td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+  width: 100vw;
 }
 
 th {
