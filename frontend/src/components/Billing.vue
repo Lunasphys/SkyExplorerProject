@@ -25,19 +25,19 @@
               </div>
               <div class="row">
                 <div class="col-7">
-                  <div v-for="student in students" :key="student._id">
-                    <div data-editable="false">
-                      {{ student.first_name }} {{ student.last_name }}
-                    </div>
-                    <br />
-                    <div data-editable="false">
-                      {{ student.address }}
-                      <br />
-                      {{ student.complementary }} <br />
-                      {{ student.postal_code }} <br />
-                      {{ student.city }}
-                    </div>
-                  </div>
+                  <!--                  <div v-for="student in students" :key="student._id">-->
+                  <!--                    <div data-editable="false">-->
+                  <!--                      {{ student.first_name }} {{ student.last_name }}-->
+                  <!--                    </div>-->
+                  <!--                    <br />-->
+                  <!--                    <div data-editable="false">-->
+                  <!--                      {{ student.address }}-->
+                  <!--                      <br />-->
+                  <!--                      {{ student.complementary }} <br />-->
+                  <!--                      {{ student.postal_code }} <br />-->
+                  <!--                      {{ student.city }}-->
+                  <!--                    </div>-->
+                  <!--                  </div>-->
                 </div>
                 <div class="col-5" style="text-align: right">
                   <br /><br /><br />

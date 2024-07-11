@@ -1,6 +1,10 @@
 <template>
   <div class="navbar">
-    <router-link to="/login" class="nav-item login-item">
+    <router-link
+      to="/login"
+      class="nav-item login-item"
+      v-if="!isAuthenticated"
+    >
       <img src="../assets/login.jpg" alt="Connexion" class="icon" />
     </router-link>
 

@@ -10,8 +10,10 @@ router.get('/events', authMiddleware(), eventController.getEvents);
 router.post('/events', authMiddleware(['admin', 'professor']), eventController.createEvent);
 router.get('/events/availablePlanes', authMiddleware(['admin', 'professor']), eventController.getAvailablePlanes);
 router.get('/events/getEventsByProfessor/:professorId', authMiddleware(['admin']), eventController.getEventsByProfessor);
+router.get('/events/getEventsByStudent/:studentId', authMiddleware(['admin']), eventController.getEventsByStudent);
 router.get('/events', eventController.getEventsByType);
 router.get('/professor/:professorId', eventController.getEventsByProfessor);
+router.get('/student/:studentId', eventController.getEventsByStudent);
 router.get('/events/type/:type', eventController.getEventsByType);
 
 

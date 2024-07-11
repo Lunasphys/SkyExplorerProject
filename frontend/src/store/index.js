@@ -96,6 +96,25 @@ export default createStore({
         commit('setEvents', [])
       }
     },
+    async fetchEventsForStudent({ commit }, studentId) {
+      try {
+        const token = localStorage.getItem('authToken')
+        if (!token) {
+          throw new Error('No token found')
+        }
+        const response = await axios.get(
+          `http://localhost:5000/api/events/student/${studentId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        commit('setEvents', response.data)
+      } catch (error) {
+        console.error('Error fetching events:', error)
+      }
+    },
     async fetchEventsForProfessor({ commit }, professorId) {
       try {
         const token = localStorage.getItem('authToken')
@@ -255,6 +274,9 @@ export default createStore({
     },
     setPlanes(state, planes) {
       state.planes = planes
+    },
+    setStudentId(state, studentId) {
+      state.studentId = studentId
     },
     setProfessorId(state, professorId) {
       state.professorId = professorId

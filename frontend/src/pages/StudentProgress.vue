@@ -1,10 +1,12 @@
 <template>
   <div class="container">
-    <div v-if="userRole === 'admin'" class="student-list">
+    <div
+      v-if="userRole === 'admin' || userRole === 'professor'"
+      class="student-list"
+    >
       <div
         v-for="student in students"
         :key="student._id"
-        :value="student._id"
         @click="selectStudent(student._id)"
         class="student-item"
       >
@@ -57,6 +59,7 @@ export default {
     return {
       localStudentId: this.studentId,
       isModalOpen: false,
+      selectedEvent: null,
     }
   },
   computed: {
@@ -77,7 +80,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['fetchStudents']),
+    ...mapActions(['fetchStudents', 'fetchEvents']),
     async selectStudent(studentId) {
       this.localStudentId = studentId
       await this.fetchEventsForStudents(studentId)
@@ -98,6 +101,7 @@ export default {
   },
   created() {
     this.fetchStudents()
+    this.fetchEvents()
   },
   setup() {
     const store = useStore()

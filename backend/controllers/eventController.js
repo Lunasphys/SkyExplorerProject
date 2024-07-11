@@ -65,6 +65,18 @@ exports.getEventsByProfessor = async (req, res) => {
   }
 };
 
+exports.getEventsByStudent = async (req, res) => {
+    try {
+        const studentId = req.params.studentId;
+        const events = await Event.find({ student: studentId }).populate('student').populate('professor').populate('plane');
+        res.status(200).json(events);
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        res.status(500).json({ message: 'Error fetching events.', error });
+    }
+
+}
+
 exports.getEventsByType = async (req, res) => {
   try {
     const { type } = req.params;

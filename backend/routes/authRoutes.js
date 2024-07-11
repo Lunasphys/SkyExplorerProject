@@ -13,6 +13,7 @@ router.get('/events', authMiddleware(), eventController.getEvents);
 router.post('/events', authMiddleware(['professor', 'admin']), eventController.createEvent);
 router.get('/events/availablePlanes', authMiddleware(['admin', 'professor']), eventController.getAvailablePlanes);
 router.get('/professor/:professorId', eventController.getEventsByProfessor);
+router.get('/student/:studentId', eventController.getEventsByStudent);
 
 // User routes
 router.get('/users', authMiddleware(['admin', 'professor']), authController.getUsers);
