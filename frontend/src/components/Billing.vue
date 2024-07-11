@@ -30,7 +30,7 @@
                       {{ student.first_name }} {{ student.last_name }}
                     </div>
                     <br />
-                    <div data-editable="true">
+                    <div data-editable="false">
                       {{ student.address }}
                       <br />
                       {{ student.complementary }} <br />
@@ -42,7 +42,7 @@
                 <div class="col-5" style="text-align: right">
                   <br /><br /><br />
                   <div>
-                    <div data-editable="true">
+                    <div data-editable="false">
                       Sky Explorer <br />
                       Réf. Client C <br />
                       Chemin de la Badesse <br />
@@ -91,7 +91,7 @@
                         data-editable="true"
                         data-field="pu-ht"
                         data-editable-type="number"
-                        >500</span
+                        >200</span
                       >
                       <span class="currency">€</span>
                     </td>
@@ -109,7 +109,7 @@
                         data-field="total-ht"
                         data-editable-type="number"
                       >
-                        {{ course.duration * 500 + 0.2 * 500 }}</span
+                        {{ 200 * (course.duration + 0.2) }}</span
                       >
                       <span class="currency">€</span>
                     </td>
@@ -309,9 +309,7 @@ table td {
 
   @page {
     size: auto;
-    /* auto is the initial value */
     margin: 30px 0;
-    /* this affects the margin in the printer settings */
   }
 
   .container {
@@ -339,9 +337,7 @@ table td {
 
   body {
     margin: 0;
-    /* Remove default body margin */
     padding: 0;
-    /* Remove default body padding */
   }
 
   textarea {

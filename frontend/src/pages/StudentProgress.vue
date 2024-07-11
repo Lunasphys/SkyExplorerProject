@@ -27,9 +27,6 @@
             <td>{{ course.type }}</td>
             <td>{{ course.day }}</td>
             <td>{{ course.duration }}</td>
-            <td v-for="bill in bills" :key="bill._id" class="bill-item">
-              {{ bill.pdf }}
-            </td>
           </tr>
         </tbody>
       </div>
@@ -73,6 +70,7 @@ export default {
       'user',
       'userRole',
       'events',
+      'bills',
     ]),
     canOpenModal() {
       return this.userRole === 'admin'
@@ -112,6 +110,7 @@ export default {
     const studentId = ref(store.getters.studentId)
     const courses = ref(store.getters.courses)
     const leisures = ref(store.getters.leisures)
+    const bills = ref(store.getters.bills)
     const fetchUserEvents = async () => {
       try {
         const token = localStorage.getItem('authToken')
@@ -184,6 +183,7 @@ export default {
       courses.value = store.getters.courses
       leisures.value = store.getters.leisures
       studentId.value = store.getters.studentId
+      bills.value = store.getters.bills
       await fetchUserEvents()
     })
     return {
@@ -196,6 +196,7 @@ export default {
       studentId,
       courses,
       leisures,
+      bills,
       fetchUserEvents,
       fetchEventsByType,
       fetchEventsForStudents,
@@ -220,6 +221,32 @@ body {
   background-color: #fff;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.student-list {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 20px;
+  gap: 0.2vh;
+  align-self: start;
+  align-items: center;
+}
+
+.student-item {
+  cursor: pointer;
+  padding: 5px 10px;
+  border: 1px solid #007bff;
+  border-radius: 5px;
+  margin: 5px 0;
+  background-color: #f9f9f9;
+  color: #007bff;
+  transition: background-color 0.3s, color 0.3s;
+  align-content: center;
+}
+
+.student-item:hover {
+  background-color: #007bff;
+  color: #fff;
 }
 
 h1 {

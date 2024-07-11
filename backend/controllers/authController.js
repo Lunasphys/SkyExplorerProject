@@ -72,38 +72,17 @@ exports.getProfessors = async (req, res) => {
 
 exports.register = async (req, res) => {
   try {
-    const { first_name, last_name, age, mail, phone, address, complementary, postal_code, password, role } = req.body;
-    console.log('Registering user:', { first_name, last_name, age, mail, phone, address, complementary, postal_code, password, role });
+    const { first_name, last_name, age, mail, phone, address, complementary, postal_code, city,password, role } = req.body;
+    console.log('Registering user:', { first_name, last_name, age, mail, phone, address, complementary, postal_code, city, password, role });
 
     const hashedPassword = await hashPassword(password);
 
-    const user = new User({ first_name, last_name, age, mail, phone, address, complementary, postal_code, password: hashedPassword, role });
+    const user = new User({ first_name, last_name, age, mail, phone, address, complementary, postal_code, city, password: hashedPassword, role });
     await user.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json({ message: 'Error registering user', error });
-  }
-};
-
-exports.createAccount = async (req, res) => {
-  const adminUser = await User.findById(req.user.id);
-  if (!adminUser || adminUser.role !== "admin") {
-    return res.status(403).json({ message: 'Unauthorized' });
-  }
-
-  try {
-    const { first_name, last_name, age, mail, phone, address, complementary, postal_code, password, role } = req.body;
-    console.log('Creating account:', { first_name, last_name, age, mail, phone, address, complementary, postal_code, password, role });
-
-    const hashedPassword = await hashPassword(password);
-
-    const newUser = new User({ first_name, last_name, age, mail, phone, address, complementary, postal_code, password: hashedPassword, role });
-    await newUser.save();
-    res.status(201).json({ message: 'Account created successfully' });
-  } catch (error) {
-    console.error('Error creating account:', error);
-    res.status(500).json({ message: 'Error creating account', error });
   }
 };
 

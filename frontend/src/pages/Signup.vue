@@ -16,15 +16,15 @@
             </div>
             <div class="form-group">
               <label for="name">NOM</label>
-              <input type="text" id="name" v-model="name" required />
+              <input type="text" id="last_name" v-model="last_name" required />
             </div>
             <div class="form-group">
               <label for="age">AGE</label>
               <input type="number" id="age" v-model="age" required />
             </div>
             <div class="form-group">
-              <label for="email">EMAIL</label>
-              <input type="email" id="email" v-model="email" required />
+              <label for="mail">EMAIL</label>
+              <input type="email" id="mail" v-model="mail" required />
             </div>
             <div class="form-group">
               <label for="phone">PHONE</label>
@@ -36,12 +36,7 @@
             </div>
             <div class="form-group">
               <label for="complementary">COMPLEMENT D'ADDRESSE</label>
-              <input
-                type="text"
-                id="complementary"
-                v-model="complementary"
-                required
-              />
+              <input type="text" id="complementary" v-model="complementary" />
             </div>
             <div class="form-group">
               <label for="postal_code">CODE POSTAL</label>
@@ -69,9 +64,7 @@
               <label for="password">MOT DE PASSE</label>
               <input type="text" id="password" v-model="password" required />
             </div>
-            <button type="submit" class="submit-button" @click="createUser">
-              C'est parti
-            </button>
+            <button type="submit" class="submit-button">C'est parti</button>
           </form>
         </div>
       </div>
@@ -88,9 +81,9 @@ export default {
   data() {
     return {
       first_name: '',
-      name: '',
+      last_name: '',
       age: '',
-      email: '',
+      mail: '',
       phone: '',
       address: '',
       complementary: '',
@@ -103,19 +96,22 @@ export default {
   methods: {
     async signup() {
       try {
-        const response = await axios.post('http://localhost:5000/api/signup', {
-          first_name: this.first_name,
-          name: this.name,
-          age: this.age,
-          email: this.email,
-          phone: this.phone,
-          address: this.address,
-          complementary: this.complementary,
-          postal_code: this.postal_code,
-          city: this.city,
-          password: this.password,
-          role: this.role,
-        })
+        const response = await axios.post(
+          'http://localhost:5000/api/register',
+          {
+            first_name: this.first_name,
+            last_name: this.last_name,
+            age: this.age,
+            mail: this.mail,
+            phone: this.phone,
+            address: this.address,
+            complementary: this.complementary,
+            postal_code: this.postal_code,
+            city: this.city,
+            password: this.password,
+            role: this.role,
+          },
+        )
         const token = response.data.token
         localStorage.setItem('authToken', token)
         await this.$router.push('./dashboard')
@@ -123,22 +119,6 @@ export default {
         console.error('Signup error:', error)
         alert('Failed to signup. Please check your credentials.')
       }
-    },
-    createUser() {
-      this.$store.dispatch('createUser', {
-        first_name: this.first_name,
-        name: this.name,
-        age: this.age,
-        email: this.email,
-        phone: this.phone,
-        address: this.address,
-        complementary: this.complementary,
-        postal_code: this.postal_code,
-        city: this.city,
-        password: this.password,
-        role: this.role,
-      })
-      this.$router.push('/dashboard')
     },
   },
 }

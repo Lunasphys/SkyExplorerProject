@@ -37,8 +37,8 @@ const billSchema = new mongoose.Schema({
   updated_from: { type: Date, required: true },
   updated_to: { type: Date, required: true },
   price: { type: Number, required: true },
-  payed: {type: Boolean, required: true }, // Ajout de la propriété payed
-  pdf: { type: Buffer } // Stockage du PDF en tant que buffer
+  payed: {type: Boolean, required: true },
+  pdf: { type: Buffer },
 });
 
 const flightSchema = new mongoose.Schema({
@@ -128,7 +128,7 @@ const insertData = async () => {
       address: '123 Main St',
       complementary: 'Apt 4',
       postal_code: '12345',
-      password: await hashPassword('aaa'), // Hachage du mot de passe
+      password: await hashPassword('Abcd1234!'), // Hachage du mot de passe
       role: 'student',
       city:'NewYork',
     });
@@ -142,7 +142,7 @@ const insertData = async () => {
       address: '456 Elm St',
       complementary: 'Suite 1',
       postal_code: '54321',
-      password: await hashPassword('aaa'), // Hachage du mot de passe
+      password: await hashPassword('Abcd1234!'), // Hachage du mot de passe
       role: 'professor',
       city:'Marseille',
     });
@@ -156,7 +156,7 @@ const insertData = async () => {
       address: '123 Admin St',
       complementary: 'Apt 1',
       postal_code: '12345',
-      password: await hashPassword('aaa'), // Hachage du mot de passe
+      password: await hashPassword('Abcd1234!'), // Hachage du mot de passe
       role: 'admin',
       city:'Tokyo',
     });
@@ -193,8 +193,8 @@ const insertData = async () => {
 
     // Insertion des factures
     await Bill.insertMany([
-      { updated_from: new Date('2023-01-01'), updated_to: new Date('2023-01-31'), price: 1000 },
-      { updated_from: new Date('2023-02-01'), updated_to: new Date('2023-02-28'), price: 1500 },
+      { updated_from: new Date('2023-01-01'), updated_to: new Date('2023-01-31'), price: 1000, payed: true },
+      { updated_from: new Date('2023-02-01'), updated_to: new Date('2023-02-28'), price: 1500, payed: false },
     ]);
 
     // Insertion des vols

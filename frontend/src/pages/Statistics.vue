@@ -1,35 +1,30 @@
 <template>
   <div class="statistics-container">
+    <h1 style="color: #ffffff; font-weight: bold">Statistiques totales</h1>
     <div class="statistics-grid">
-      <div
-        class="stat-box theoretical-amount"
-        v-for="bill in bills"
-        :key="bill._id"
-      >
-        <h2>Total théorique</h2>
-        <p v-for="course in courses" :key="course._id">
-          {{ course.duration }} euros
-        </p>
-        <h2>Factures payées actuellement</h2>
-        <p>{{ bill.payed }} euros</p>
+      <div class="stat-box total-hours-activity-cours">
+        <h2>Total heures de vol téoriques prodigué : Cours</h2>
+        <p>{{ totalHoursCourses }} heure(s)</p>
+        <h2>Total heures de vol payé : cours</h2>
+        <p>{{ totalHoursCoursesPaid }} heure(s)</p>
       </div>
-      <div
-        class="stat-box total-hours-activity"
-        v-for="course in courses"
-        :key="course._id"
-      >
-        <h2>Totales heures de vol : cours</h2>
-        <p v-if="course.type === 'course'">{{ course.duration }} heure(s)</p>
-        <h2>Totales heures de vol : loisirs</h2>
-        <p v-if="course.type === 'leisure'">{{ course.duration }} heure(s)</p>
+      <div class="stat-box total-hours-activity-leisures">
+        <h2>Total heures de vol théoriques prodigué : Loisirs</h2>
+        <p>{{ totalHoursLeisures }} heure(s)</p>
+        <h2>Total heures de vol de payé : loisirs</h2>
+        <p>{{ totalHoursLeisuresPaid }} heure(s)</p>
       </div>
-      <div
-        class="stat-box total-student"
-        v-for="student in students"
-        :key="student._id"
-      >
+      <div class="total-student">
         <h2>Total Etudiants</h2>
-        <p>1 étudiant(s)</p>
+        <p>{{ countStudent }} étudiant(s)</p>
+      </div>
+      <div class="total-professor">
+        <h2>Total Professeurs</h2>
+        <p>{{ countProfessor }} professeur(s)</p>
+      </div>
+      <div class="total-pdf">
+        <h2>Total des factures</h2>
+        <p v-for="bill in bills" :key="bill._id">{{ bill.pdf }}</p>
       </div>
     </div>
   </div>
@@ -57,10 +52,49 @@ export default {
     statistics() {
       return this.$store.getters.statistics
     },
+    countStudent() {
+      return this.students.length
+    },
+    countProfessor() {
+      return this.professors.length
+    },
+    totalHoursCourses() {
+      return this.courses.reduce((acc, course) => {
+        if (course.type === 'course') {
+          return acc + course.duration
+        }
+        return acc
+      }, 0)
+    },
+    totalHoursCoursesPaid() {
+      return this.courses.reduce((acc, course) => {
+        if (course.type === 'course' && course.payed) {
+          return acc + course.duration
+        }
+        return acc
+      }, 0)
+    },
+    totalHoursLeisures() {
+      return this.leisures.reduce((acc, leisure) => {
+        if (leisure.type === 'leisure') {
+          return acc + leisure.duration
+        }
+        return acc
+      }, 0)
+    },
+    totalHoursLeisuresPaid() {
+      return this.leisures.reduce((acc, leisure) => {
+        if (leisure.type === 'leisure' && leisure.payed) {
+          return acc + leisure.duration
+        }
+        return acc
+      }, 0)
+    },
     ...mapGetters([
       'courses',
       'leisures',
       'students',
+      'professors',
       'userRole',
       'studentId',
       'user',
@@ -165,12 +199,30 @@ export default {
   background-color: #f78da7;
 }
 
-.total-hours-activity {
+.total-hours-activity-cours {
+  background-color: #82ca9c;
+}
+
+.total-hours-activity-leisures {
   background-color: #82ca9c;
 }
 
 .total-student {
   background-color: #8da0cb;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.total-professor {
+  background-color: #2da0ab;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.total-pdf {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
 }
 
 .stat-box h2 {
