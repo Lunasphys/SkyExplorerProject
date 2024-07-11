@@ -14,15 +14,7 @@
         <img src="../assets/dashboard.png" alt="Dashboard" class="icon" />
       </router-link>
       <router-link
-        v-if="isAuthenticated"
-        to="/billing"
-        class="nav-item"
-        key="billing"
-      >
-        <img src="../assets/bills.png" alt="Facture" class="icon" />
-      </router-link>
-      <router-link
-        v-if="isAuthenticated"
+        v-if="userRole === 'admin'"
         to="/statistics"
         class="nav-item"
         key="statistics"
@@ -30,7 +22,7 @@
         <img src="../assets/statistics.png" alt="Statistique" class="icon" />
       </router-link>
       <router-link
-        v-if="isAuthenticated"
+        v-if="userRole === 'admin' || userRole === 'student'"
         to="/student_progress"
         class="nav-item"
         key="student-progress"
@@ -40,6 +32,14 @@
           alt="Progression élèves"
           class="icon"
         />
+      </router-link>
+      <router-link
+        v-if="userRole === 'admin'"
+        to="/sign_up"
+        class="nav-item"
+        key="sign-up"
+      >
+        <img src="../assets/create_user.png" alt="Signup" class="icon" />
       </router-link>
       <button
         v-if="isAuthenticated"
@@ -59,7 +59,7 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'NavBar',
   computed: {
-    ...mapGetters(['isAuthenticated']),
+    ...mapGetters(['isAuthenticated', 'userRole']),
   },
   methods: {
     ...mapActions(['logout']),

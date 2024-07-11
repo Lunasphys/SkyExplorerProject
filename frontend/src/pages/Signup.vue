@@ -1,51 +1,3 @@
-<script>
-import axios from 'axios'
-
-export default {
-  name: 'Sign-up',
-  data() {
-    return {
-      first_name: '',
-      name: '',
-      age: '',
-      email: '',
-      phone: '',
-      address: '',
-      complementary: '',
-      postal_code: '',
-      city: '',
-      password: '',
-      role: '',
-    }
-  },
-  methods: {
-    async signup() {
-      try {
-        const response = await axios.post('http://localhost:5000/api/signup', {
-          first_name: this.first_name,
-          name: this.name,
-          age: this.age,
-          email: this.email,
-          phone: this.phone,
-          address: this.address,
-          complementary: this.complementary,
-          postal_code: this.postal_code,
-          city: this.city,
-          password: this.password,
-          role: this.role,
-        })
-        const token = response.data.token
-        localStorage.setItem('authToken', token)
-        await this.$router.push('./dashboard')
-      } catch (error) {
-        console.error('Signup error:', error)
-        alert('Failed to signup. Please check your credentials.')
-      }
-    },
-  },
-}
-</script>
-
 <template>
   <div class="signup-container">
     <div class="signup-card">
@@ -117,13 +69,80 @@ export default {
               <label for="password">MOT DE PASSE</label>
               <input type="text" id="password" v-model="password" required />
             </div>
-            <button type="submit" class="submit-button">C'est parti</button>
+            <button type="submit" class="submit-button" @click="createUser">
+              C'est parti
+            </button>
           </form>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script>
+import axios from 'axios'
+
+export default {
+  // eslint-disable-next-line vue/multi-word-component-names
+  name: 'Signup',
+  data() {
+    return {
+      first_name: '',
+      name: '',
+      age: '',
+      email: '',
+      phone: '',
+      address: '',
+      complementary: '',
+      postal_code: '',
+      city: '',
+      password: '',
+      role: '',
+    }
+  },
+  methods: {
+    async signup() {
+      try {
+        const response = await axios.post('http://localhost:5000/api/signup', {
+          first_name: this.first_name,
+          name: this.name,
+          age: this.age,
+          email: this.email,
+          phone: this.phone,
+          address: this.address,
+          complementary: this.complementary,
+          postal_code: this.postal_code,
+          city: this.city,
+          password: this.password,
+          role: this.role,
+        })
+        const token = response.data.token
+        localStorage.setItem('authToken', token)
+        await this.$router.push('./dashboard')
+      } catch (error) {
+        console.error('Signup error:', error)
+        alert('Failed to signup. Please check your credentials.')
+      }
+    },
+    createUser() {
+      this.$store.dispatch('createUser', {
+        first_name: this.first_name,
+        name: this.name,
+        age: this.age,
+        email: this.email,
+        phone: this.phone,
+        address: this.address,
+        complementary: this.complementary,
+        postal_code: this.postal_code,
+        city: this.city,
+        password: this.password,
+        role: this.role,
+      })
+      this.$router.push('/dashboard')
+    },
+  },
+}
+</script>
 
 <style scoped>
 .signup-container {

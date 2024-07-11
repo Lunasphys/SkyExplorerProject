@@ -4,13 +4,14 @@
       <div
         v-for="student in students"
         :key="student._id"
+        :value="student._id"
         @click="selectStudent(student._id)"
         class="student-item"
       >
         <span> {{ student.first_name }} {{ student.last_name }}</span>
       </div>
     </div>
-    <h1>Informations sur les Cours de Vol de {{ userName }}</h1>
+    <h1>Informations sur les Cours de Vol</h1>
     <table>
       <div v-for="course in courses" :key="course._id" class="course-item">
         <thead>
@@ -40,6 +41,7 @@
       v-if="isModalOpen"
       :users="users"
       :role="userRole"
+      :student-id="localStudentId"
       @close="closeModal"
     />
   </div>
@@ -49,7 +51,7 @@
 import { mapActions, mapGetters, useStore } from 'vuex'
 import { onMounted, ref } from 'vue'
 import axios from 'axios'
-import Billing from '@/pages/Billing.vue'
+import Billing from '@/components/Billing.vue'
 
 export default {
   name: 'StudentProgress',
@@ -57,6 +59,7 @@ export default {
   data() {
     return {
       localStudentId: this.studentId,
+      isModalOpen: false,
     }
   },
   computed: {
@@ -79,13 +82,13 @@ export default {
     ...mapActions(['fetchStudents']),
     async selectStudent(studentId) {
       this.localStudentId = studentId
-      await this.fetchStudents(studentId)
+      await this.fetchEventsForStudents(studentId)
     },
     async openModal(studentId) {
       if (this.canOpenModal) {
         this.isModalOpen = true
         this.localStudentId = studentId
-        await this.fetchStudents(studentId)
+        await this.fetchEventsForStudents(studentId)
       } else {
         alert('You cannot access this page')
       }
@@ -127,6 +130,26 @@ export default {
         events.value = response.data
       } catch (error) {
         console.error('Fetch user events error:', error)
+      }
+    }
+    const fetchEventsForStudents = async (studentId) => {
+      try {
+        const token = localStorage.getItem('authToken')
+        if (!token) {
+          throw new Error('Token not found')
+        }
+        const response = await axios.get(
+          `http://localhost:5000/api/events/student/${studentId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        console.log('Fetch students:', response.data)
+        events.value = response.data
+      } catch (error) {
+        console.error('Error fetching students', error)
       }
     }
     const fetchEventsByType = async (type) => {
@@ -171,8 +194,11 @@ export default {
       users,
       events,
       studentId,
+      courses,
+      leisures,
       fetchUserEvents,
       fetchEventsByType,
+      fetchEventsForStudents,
     }
   },
 }
