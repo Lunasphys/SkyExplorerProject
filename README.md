@@ -21,8 +21,9 @@ Bienvenue dans le projet Sky Explorer ! Cette application utilise Vue.js pour le
    ```
 3. **Configurez les variables d'environnement** en créant un fichier `.env` basé sur le modèle suivant :
    ```env
-   MONGO_URI=mongodb://localhost:27017/sky-explorer
-   JWT_SECRET=your_jwt_secret
+   JWT_SECRET=my_super_secret_key
+   MONGO_URI=mongodb://localhost:27017/skyexplorer
+   PORT=5000
    ```
 4. **Initialisez la base de données** avec des données de départ :
    ```bash
